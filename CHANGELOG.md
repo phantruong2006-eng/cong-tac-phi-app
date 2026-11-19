@@ -2,6 +2,11 @@
 
 Mỗi lần sửa app thì tăng số trong file `VERSION` (1.0 → 1.1 → 1.2 …).
 
+## 1.8
+- Đổi tên app thành VP, biểu tượng tờ giấy trắng (công việc văn phòng).
+- Bỏ màn hình menu: mở app vào thẳng tool dùng lần trước (lần đầu là Công tác phí).
+- Góc trên bên phải có nút chuyển tool: Công tác phí ⇄ Đặt hàng Bionote.
+
 ## 1.7
 - App thành menu 2 tool: "Công tác phí" và "Đặt hàng Bionote".
 - Thêm tool Đặt hàng Bionote (theo file TOOL_DAT_HANG_BIONOTE.html của anh): nhập SL đặt → tự chia ngẫu nhiên cho 14 khách, tổng luôn đúng; xuất file Excel từ mẫu gốc và gửi qua Zalo/Gmail.

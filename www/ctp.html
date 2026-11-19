@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>CTP</title>
+<title>VP – Công tác phí</title>
 <style>
   :root{--bg:#f4f6f9;--card:#fff;--ink:#1c2430;--mut:#667085;--line:#d9dfe7;--pri:#1f6feb;--ok:#137333;--warn:#b45309}
   @media (prefers-color-scheme:dark){:root{--bg:#14181f;--card:#1d232d;--ink:#e8ecf2;--mut:#98a2b3;--line:#323b49;--pri:#5b9bff;--ok:#5fd38a;--warn:#f5b04a}}
@@ -36,12 +36,18 @@
   .chip{flex:1;background:transparent;color:var(--pri);border:1px solid var(--pri);padding:9px 0}
   .chip.on{background:var(--pri);color:#fff}
   .send{width:100%;font-size:18px;padding:15px;margin-top:10px}
+
+  .vpsw{position:relative;margin-left:auto;flex:none}
+  .vpsw>button{font:inherit;font-size:14px;font-weight:700;border:1px solid #c9d3e8;background:#fff;color:#1f3864;border-radius:999px;padding:7px 14px;cursor:pointer;white-space:nowrap}
+  .vpsw .m{position:absolute;right:0;top:calc(100% + 6px);background:#fff;border:1px solid #d9dfeb;border-radius:12px;box-shadow:0 6px 24px #0002;min-width:220px;z-index:60;overflow:hidden}
+  .vpsw .m a{display:flex;gap:10px;align-items:center;padding:13px 16px;color:#1d2433;text-decoration:none;font-weight:600;font-size:15px}
+  .vpsw .m a+a{border-top:1px solid #eef1f6}
+  .vpsw .m a.on{background:#eef4ff;color:#1f6feb}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <p style="margin:0 0 6px"><a href="index.html" style="color:var(--pri);text-decoration:none;font-weight:600">← Menu</a></p>
-  <h1>Công tác phí <span class="mut" style="font-size:14px;font-weight:400">· Phiên bản __APP_VERSION__</span></h1>
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><h1 style="margin:0">VP <span class="mut" style="font-size:13px;font-weight:400">· bản __APP_VERSION__</span></h1><div class="vpsw"><button type="button" id="vpswBtn">Công tác phí ▾</button><div class="m" id="vpswMenu" hidden><a href="ctp.html" class="on">🗓 Công tác phí</a><a href="bionote.html">🧪 Đặt hàng Bionote</a></div></div></div>
 
   <div class="card">
     <div class="row" style="justify-content:space-between">
@@ -330,6 +336,11 @@ $('dl').onclick = async ()=>{
   document.body.appendChild(a); a.click(); a.remove();
   $('dlMsg').innerHTML=`<span class="ok">Đã tải: ${name}</span> (thường nằm trong thư mục Downloads).`;
 };
+</script>
+<script>
+try{localStorage.setItem('vp_tool',location.pathname.split('/').pop()||'ctp.html')}catch(e){}
+document.getElementById('vpswBtn').onclick=e=>{e.stopPropagation();const m=document.getElementById('vpswMenu');m.hidden=!m.hidden;};
+document.addEventListener('click',()=>{document.getElementById('vpswMenu').hidden=true;});
 </script>
 </body>
 </html>

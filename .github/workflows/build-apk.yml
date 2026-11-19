@@ -39,6 +39,17 @@ jobs:
           sed -i "s/versionCode [0-9]*/versionCode ${{ github.run_number }}/; s/versionName \"[^\"]*\"/versionName \"${VER}\"/" android/app/build.gradle
           grep -E "versionCode|versionName" android/app/build.gradle
 
+      - name: Gan bieu tuong app (to giay trang)
+        run: |
+          for d in mdpi hdpi xhdpi xxhdpi xxxhdpi; do
+            cp icons/ic_launcher-$d.png android/app/src/main/res/mipmap-$d/ic_launcher.png
+            cp icons/ic_launcher_round-$d.png android/app/src/main/res/mipmap-$d/ic_launcher_round.png
+            cp icons/ic_launcher_foreground-$d.png android/app/src/main/res/mipmap-$d/ic_launcher_foreground.png
+          done
+          f=android/app/src/main/res/values/ic_launcher_background.xml
+          if [ -f $f ]; then sed -i 's/>#[0-9A-Fa-f]*</>#1F6FEB</' $f; cat $f; fi
+          ls android/app/src/main/res/mipmap-anydpi-v26 || true
+
       - name: Dung ma khoa co dinh (de cai de len ban cu)
         run: |
           cat >> android/app/build.gradle <<'GRADLE'

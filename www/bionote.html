@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi"><head><meta charset="utf-8"><title>Tool đặt hàng Bionote</title>
+<html lang="vi"><head><meta charset="utf-8"><title>VP – Đặt hàng Bionote</title>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <style>
 *{box-sizing:border-box}body{font-family:Arial,Helvetica,sans-serif;margin:0;background:#f4f6fa;color:#1d2433}
@@ -24,8 +24,7 @@ details summary{cursor:pointer;font-weight:bold;color:#1f3864}
 #msg{font-size:13px;color:#2e9e5b;font-weight:bold}
 @media (max-width:640px){
  header{position:static;padding-left:12px;padding-right:12px;gap:8px}
- header h1{min-width:0;font-size:17px;flex:1 1 calc(100% - 100px)}
- header h1 span{display:block}
+ header h1{min-width:0;font-size:17px}
  header #bReset,header #bShuffle{flex:1}
  header button{padding:9px 12px;font-size:13px}
  #bExport{width:100%;font-size:15px;padding:12px}
@@ -37,8 +36,15 @@ details summary{cursor:pointer;font-weight:bold;color:#1f3864}
  td input[type=number]{width:58px;font-size:16px}
  input[type=search]{max-width:none;font-size:16px}
 }
+
+  .vpsw{position:relative;margin-left:auto;flex:none}
+  .vpsw>button{font:inherit;font-size:14px;font-weight:700;border:1px solid #c9d3e8;background:#fff;color:#1f3864;border-radius:999px;padding:7px 14px;cursor:pointer;white-space:nowrap}
+  .vpsw .m{position:absolute;right:0;top:calc(100% + 6px);background:#fff;border:1px solid #d9dfeb;border-radius:12px;box-shadow:0 6px 24px #0002;min-width:220px;z-index:60;overflow:hidden}
+  .vpsw .m a{display:flex;gap:10px;align-items:center;padding:13px 16px;color:#1d2433;text-decoration:none;font-weight:600;font-size:15px}
+  .vpsw .m a+a{border-top:1px solid #eef1f6}
+  .vpsw .m a.on{background:#eef4ff;color:#1f6feb}
 </style></head><body>
-<header><a href="index.html" style="color:#fff;text-decoration:none;font-weight:bold">← Menu</a><h1>Tool đặt hàng Bionote <span style="font-weight:normal;font-size:12px;opacity:.75">· Phiên bản __APP_VERSION__</span></h1><span id="msg"></span>
+<header><div style="display:flex;align-items:center;gap:10px;width:100%"><h1 style="flex:1;min-width:0">VP <span style="font-weight:normal;font-size:12px;opacity:.75">· bản __APP_VERSION__</span></h1><div class="vpsw"><button type="button" id="vpswBtn">Đặt hàng Bionote ▾</button><div class="m" id="vpswMenu" hidden><a href="ctp.html">🗓 Công tác phí</a><a href="bionote.html" class="on">🧪 Đặt hàng Bionote</a></div></div></div><span id="msg"></span>
 <button id="bReset">Về số ban đầu</button><button id="bShuffle">🎲 Chia lại ngẫu nhiên</button><button id="bExport">⬇ Xuất &amp; gửi file Excel</button></header>
 <main>
 <div class="card"><h2>1. Nhập số lượng đặt</h2>
@@ -183,4 +189,9 @@ $('bExport').onclick=async()=>{
   }catch(e){ alert('Lỗi khi xuất file: '+e.message); }
 };
 buildInputs(); buildChk(); shuffleAll();
-</script></body></html>
+</script><script>
+try{localStorage.setItem('vp_tool',location.pathname.split('/').pop()||'ctp.html')}catch(e){}
+document.getElementById('vpswBtn').onclick=e=>{e.stopPropagation();const m=document.getElementById('vpswMenu');m.hidden=!m.hidden;};
+document.addEventListener('click',()=>{document.getElementById('vpswMenu').hidden=true;});
+</script>
+</body></html>
