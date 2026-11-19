@@ -2,6 +2,11 @@
 
 Mỗi lần sửa app thì tăng số trong file `VERSION` (1.0 → 1.1 → 1.2 …).
 
+## 1.7
+- App thành menu 2 tool: "Công tác phí" và "Đặt hàng Bionote".
+- Thêm tool Đặt hàng Bionote (theo file TOOL_DAT_HANG_BIONOTE.html của anh): nhập SL đặt → tự chia ngẫu nhiên cho 14 khách, tổng luôn đúng; xuất file Excel từ mẫu gốc và gửi qua Zalo/Gmail.
+- Bionote trên điện thoại: ẩn cột Mã ERP cho vừa màn hình (ô tìm kiếm vẫn tìm được theo mã).
+
 ## 1.6
 - Bản thử cài đè: cùng mã khóa với 1.5, cài thẳng lên 1.5 không cần gỡ.
 

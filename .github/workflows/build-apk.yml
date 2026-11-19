@@ -27,7 +27,7 @@ jobs:
         run: echo "VER=$(cat VERSION | tr -d '[:space:]')" >> $GITHUB_ENV
 
       - name: Ghi phien ban vao app
-        run: sed -i "s/__APP_VERSION__/${VER}/" www/index.html
+        run: sed -i "s/__APP_VERSION__/${VER}/g" www/*.html
 
       - name: Cai thu vien
         run: npm install
