@@ -39,6 +39,11 @@ jobs:
           sed -i "s/versionCode [0-9]*/versionCode ${{ github.run_number }}/; s/versionName \"[^\"]*\"/versionName \"${VER}\"/" android/app/build.gradle
           grep -E "versionCode|versionName" android/app/build.gradle
 
+      - name: Dung ma khoa co dinh (de cai de len ban cu)
+        run: |
+          mkdir -p ~/.android
+          cp keystore/ctp-debug.keystore ~/.android/debug.keystore
+
       - name: Build APK
         working-directory: android
         run: ./gradlew assembleDebug --no-daemon

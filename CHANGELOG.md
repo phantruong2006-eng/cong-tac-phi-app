@@ -2,6 +2,10 @@
 
 Mỗi lần sửa app thì tăng số trong file `VERSION` (1.0 → 1.1 → 1.2 …).
 
+## 1.5
+- Ký app bằng mã khóa cố định: từ bản này trở đi cài đè lên bản cũ, không cần gỡ.
+  (Lần cài 1.5 phải gỡ bản cũ một lần cuối vì bản cũ dùng khóa khác.)
+
 ## 1.4
 - Giao diện gọn: mọi thứ trong 1 màn hình, ô số ngày to (gõ tay được) + nút nhanh 18/20/22/24.
 - Nút "Tạo file & gửi cho kế toán" đưa lên ngay dưới ô số ngày.
