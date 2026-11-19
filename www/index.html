@@ -31,59 +31,48 @@
   details summary{cursor:pointer;color:var(--pri);font-weight:600}
   textarea{width:100%;height:150px;font-family:Consolas,monospace;font-size:14px}
   .hide{display:none}
+  input.big{width:100%;font-size:34px;font-weight:700;text-align:center;padding:10px;border-radius:12px}
+  .chips{display:flex;gap:8px;margin:10px 0 4px}
+  .chip{flex:1;background:transparent;color:var(--pri);border:1px solid var(--pri);padding:9px 0}
+  .chip.on{background:var(--pri);color:#fff}
+  .send{width:100%;font-size:18px;padding:15px;margin-top:10px}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>Sửa ngày công tác phí <span class="mut" style="font-size:14px;font-weight:400">· Phiên bản __APP_VERSION__</span></h1>
-  <p class="sub">Chỉ đổi cột <b>Ngày</b>. Mọi thứ khác trong file (nơi đến, số tiền, định dạng, chữ ký…) giữ nguyên. Bỏ Chủ nhật và ngày lễ/Tết.</p>
+  <h1>CTP <span class="mut" style="font-size:14px;font-weight:400">· Phiên bản __APP_VERSION__</span></h1>
 
   <div class="card">
-    <p class="step"><b>1</b>File mẫu công tác phí</p>
-    <p class="msg" id="fileMsg">Đang mở file mẫu có sẵn…</p>
-    <details style="margin-top:10px"><summary>Dùng file khác</summary>
-      <input type="file" id="file" style="margin-top:8px">
+    <div class="row" style="justify-content:space-between">
+      <span class="mut">Báo cáo tháng</span>
+      <span><select id="month"></select> / <input type="number" id="year" style="width:84px"></span>
+    </div>
+    <p class="step" style="margin:6px 0 8px">Số ngày công tác</p>
+    <input type="number" id="ndays" inputmode="numeric" min="1" max="31" class="big">
+    <div class="chips"><button class="chip" data-n="18">18</button><button class="chip" data-n="20">20</button><button class="chip" data-n="22">22</button><button class="chip" data-n="24">24</button></div>
+    <p class="msg" id="calcMsg"></p>
+    <button id="dl" type="button" class="send">Tạo file &amp; gửi cho kế toán</button>
+    <p class="msg" id="dlMsg"></p>
+    <details id="daysBox" style="margin-top:12px"><summary id="daysSum">Xem các ngày đã chọn</summary>
+      <div class="row" style="margin:8px 0"><button class="sec" id="reroll" type="button">Chọn lại ngày khác</button></div>
+      <table id="prev" class="hide"><thead><tr><th>#</th><th>Ngày</th><th>Thứ</th></tr></thead><tbody></tbody></table>
     </details>
   </div>
 
-  <div class="card hide" id="step2">
-    <p class="step"><b>2</b>Chọn tháng và số ngày</p>
-    <div class="row">
-      <label>Tháng <select id="month"></select></label>
-      <label>Năm <input type="number" id="year" style="width:90px"></label>
-    </div>
-    <div class="row">
-      <label>Cách chọn ngày
-        <select id="mode">
-          <option value="random">Ngẫu nhiên trong tháng</option>
-          <option value="first">Liên tiếp từ đầu tháng</option>
-        </select>
-      </label>
-      <button class="sec" id="reroll" type="button">Chọn lại</button>
-    </div>
-    <div class="row">
-      <label>Số ngày công tác <input type="number" id="ndays" min="1" max="31" style="width:80px"> ngày</label>
-      <span class="mut">(file đang có <b id="nrows">0</b> dòng)</span>
-    </div>
-    <p class="msg mut">Thứ Bảy vẫn được tính, chỉ bỏ Chủ nhật và ngày lễ. Nếu số ngày khác số dòng hiện có, tool tự thêm hoặc bớt dòng ở cuối bảng (dòng thêm sao chép từ dòng cuối, tổng tiền tự cộng lại).</p>
-    <p class="msg" id="calcMsg"></p>
-    <table id="prev" class="hide"><thead><tr><th>#</th><th>Ngày</th><th>Thứ</th></tr></thead><tbody></tbody></table>
-  </div>
-
-  <div class="card hide" id="step3">
-    <p class="step"><b>3</b>Gửi file cho kế toán</p>
-    <button id="dl" type="button" style="width:100%">Tạo file &amp; gửi cho kế toán</button>
-    <p class="msg" id="dlMsg"></p>
-  </div>
-
   <div class="card">
-    <details>
-      <summary>Danh sách ngày nghỉ lễ/Tết (bấm để xem / sửa)</summary>
-      <p class="mut" style="margin:8px 0">Mỗi dòng một ngày, dạng <b>ngày/tháng/năm</b> (ví dụ 01/01/2027). Đầu năm có lịch nghỉ chính thức (nhất là Tết Âm lịch) thì anh thêm vào đây. Máy sẽ nhớ danh sách anh sửa.</p>
+    <details><summary>Cài đặt</summary>
+      <p class="msg" id="fileMsg">Đang mở file mẫu có sẵn…</p>
+      <p class="mut" style="margin:10px 0 4px">Dùng file khác:</p>
+      <input type="file" id="file">
+      <div class="row" style="margin-top:12px"><label>Cách chọn ngày
+        <select id="mode"><option value="random">Ngẫu nhiên</option><option value="first">Liên tiếp từ đầu tháng</option></select></label></div>
+      <p class="mut" style="margin:12px 0 4px">Ngày nghỉ lễ/Tết (mỗi dòng một ngày, dạng 01/01/2027):</p>
       <textarea id="hol" spellcheck="false"></textarea>
       <div class="row" style="margin-top:8px"><button class="sec" id="resetHol" type="button">Khôi phục danh sách gốc</button></div>
+      <span class="hide"><b id="nrows">0</b></span>
     </details>
   </div>
+  <div id="step2"></div><div id="step3"></div>
 </div>
 
 <script>/*!
@@ -232,6 +221,10 @@ function recalc(reroll){
   if (delta>0) msg += `<br>Sẽ <b>thêm ${delta} dòng</b> vào bảng.`;
   if (delta<0) { cls='warn'; msg += `<br>Sẽ <b>bớt ${-delta} dòng cuối</b> của bảng (mất tiền của các dòng đó).`; }
   if (y>2027 || (y===2027 && m<=3)) { msg += `<br><span class="warn">Lưu ý: kiểm tra danh sách ngày lễ/Tết của năm ${y} (mục bên dưới) đã đủ chưa.</span>`; }
+  msg = `Tháng ${m}/${y} có ${out.length} ngày đi được (bỏ Chủ nhật${hit.length?', lễ '+hit.map(d=>p2(d)+'/'+p2(m)).join(', '):''}).`;
+  if (want>out.length) msg += `<br>⚠ Chỉ lấy được ${out.length} ngày.`;
+  document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('on', +c.dataset.n===chosen.length));
+  $('daysSum').textContent = `Xem ${chosen.length} ngày đã chọn`;
   $('calcMsg').className='msg '+cls; $('calcMsg').innerHTML=msg;
 
   const tb = $('prev').querySelector('tbody'); tb.innerHTML='';
@@ -248,6 +241,7 @@ $('year').oninput=()=>recalc(true);
 $('mode').onchange=()=>recalc(true);
 $('ndays').oninput=()=>recalc(true);
 $('reroll').onclick=()=>recalc(true);
+document.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{$('ndays').value=c.dataset.n;recalc(true);});
 
 function renum(xml, oldR, newR){
   if (oldR===newR) return xml;

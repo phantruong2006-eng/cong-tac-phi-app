@@ -2,6 +2,11 @@
 
 Mỗi lần sửa app thì tăng số trong file `VERSION` (1.0 → 1.1 → 1.2 …).
 
+## 1.4
+- Giao diện gọn: mọi thứ trong 1 màn hình, ô số ngày to (gõ tay được) + nút nhanh 18/20/22/24.
+- Nút "Tạo file & gửi cho kế toán" đưa lên ngay dưới ô số ngày.
+- Danh sách ngày thu gọn ("Xem … ngày đã chọn"); file khác, cách chọn ngày, ngày lễ gom vào "Cài đặt".
+
 ## 1.3
 - Mở app tự chọn THÁNG TRƯỚC (làm file tháng 11/2026 → báo cáo tháng 10/2026; làm tháng 1 → báo cáo tháng 12 năm trước).
 - Tên file, ngày trong bảng và ô "Ngày: …" đều theo tháng báo cáo đó.
