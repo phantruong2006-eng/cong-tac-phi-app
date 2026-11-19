@@ -8,9 +8,14 @@ window.vpOut = async function(name, b64, action, text){
       const r = await VP.saveToDownloads({name, data:b64});
       return `Đã lưu vào máy: ${r.path} (mở app "Tệp của tôi" → Tải về → VP).`;
     } else {
-      // Zalo tự gắn mã vào tên file khi nhận chia sẻ từ app khác → lưu file rồi mở Zalo để anh tự đính kèm (giữ đúng tên)
+      // Zalo tự gắn mã vào tên file khi nhận "Chia sẻ" → lưu file, hiện hướng dẫn, anh chọn cách gửi
       await VP.saveToDownloads({name, data:b64});
-      alert('Đã lưu file:\n' + name + '\n\nTrong Zalo: mở khung chat kế toán → bấm ••• → Tài liệu → Download → VP → chọn file trên cùng.');
+      const how = await window.vpZaloGuide(name);
+      if (how === 'cancel') return 'Đã lưu file vào Download/VP (chưa gửi).';
+      if (how === 'fast'){
+        const r = await VP.shareZaloFile({name, text:text||''});
+        return r && r.zalo ? 'Đã gửi nhanh sang Zalo — anh xem tên file có đúng không.' : 'Máy chưa cài Zalo.';
+      }
       const r = await VP.openZalo();
       return r && r.zalo ? 'Đã lưu file và mở Zalo — bấm ••• → Tài liệu → Download → VP để gửi.' : 'Đã lưu file vào Download/VP, nhưng máy chưa cài Zalo.';
     }
@@ -63,3 +68,27 @@ window.vpOut = async function(name, b64, action, text){
     };
   };
 })();
+
+// ===== Bảng hướng dẫn gửi Zalo (giữ đúng tên file) =====
+window.vpZaloGuide = function(name){
+  return new Promise(res=>{
+    const ov=document.createElement('div');
+    ov.style.cssText='position:fixed;inset:0;background:#0007;z-index:1001;display:flex;align-items:flex-end;justify-content:center';
+    const st='display:flex;gap:10px;align-items:flex-start;margin:8px 0;font-size:15px;line-height:1.35';
+    const n=k=>`<span style="flex:none;width:24px;height:24px;border-radius:50%;background:#0068ff;color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center">${k}</span>`;
+    ov.innerHTML=`<div style="background:#fff;width:100%;max-width:560px;border-radius:16px 16px 0 0;padding:18px 16px calc(16px + env(safe-area-inset-bottom));color:#1d2433;font-family:inherit">
+      <div style="font-size:13px;color:#2e7d32;font-weight:600">✔ Đã lưu file vào Download/VP</div>
+      <div style="font-weight:700;font-size:15px;margin:4px 0 12px;word-break:break-word">${String(name).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}</div>
+      <div style="font-weight:700;margin-bottom:4px">Gửi trong Zalo để giữ đúng tên file:</div>
+      <div style="${st}">${n(1)}<span>Mở khung chat với <b>kế toán</b></span></div>
+      <div style="${st}">${n(2)}<span>Bấm <b>•••</b> (cạnh nút micro) → <b>Tài liệu</b></span></div>
+      <div style="${st}">${n(3)}<span>Vào <b>Download → VP</b> → chọn file <b>trên cùng</b> → Gửi</span></div>
+      <button data-a="open" style="width:100%;margin-top:12px;background:#0068ff;color:#fff;border:0;border-radius:12px;padding:14px;font-size:16px;font-weight:700">Mở Zalo</button>
+      <div style="display:flex;gap:10px;margin-top:10px">
+        <button data-a="fast" style="flex:1;background:#fff;color:#1f3864;border:2px solid #1f3864;border-radius:12px;padding:10px;font-size:13px">⚡ Gửi nhanh 1 chạm<br><span style="font-size:11px;opacity:.7">(thử nghiệm)</span></button>
+        <button data-a="cancel" style="flex:1;background:#eef1f7;color:#1f3864;border:0;border-radius:12px;padding:10px;font-size:14px">Để sau</button>
+      </div></div>`;
+    document.body.appendChild(ov);
+    ov.onclick=e=>{ const b=e.target.closest('button[data-a]'); const a=b?b.dataset.a:(e.target===ov?'cancel':null); if(!a) return; ov.remove(); res(a); };
+  });
+};

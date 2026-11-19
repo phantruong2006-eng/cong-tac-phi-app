@@ -2,6 +2,13 @@
 
 Mỗi lần sửa app thì tăng số trong file `VERSION` (1.0 → 1.1 → 1.2 …).
 
+## 2.7
+- Gửi qua Zalo: bảng hướng dẫn 3 bước + nút "Mở Zalo"; thêm nút thử nghiệm "⚡ Gửi nhanh 1 chạm" (gửi đường dẫn file thật, xem Zalo có giữ đúng tên không).
+- Bionote:
+  - Sửa tay số chia cho từng khách ngay trong bảng "Kết quả chia". Ô tổng đỏ khi lệch SL đặt; lúc xuất file hỏi có lấy tổng chia làm SL đặt không.
+  - Thêm khách mới / xoá khách (✕) / khôi phục 14 khách gốc. File Excel tự thêm cột khách mới trước cột "tổng".
+  - Mục "👥 Khách hàng & tuỳ chọn" mở sẵn.
+
 ## 2.6
 - Tên file ngắn lại: "CTP T10.2026 - Phan Đình Trường.xlsx", "Đặt hàng Bionote 19.11.2026 - Phan Đình Trường.xlsx".
 - Gửi qua Zalo: Zalo luôn gắn mã lạ vào tên file nhận qua "Chia sẻ", nên app lưu file vào Download/VP rồi mở Zalo;

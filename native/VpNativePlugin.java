@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.util.Base64;
 import androidx.core.content.FileProvider;
@@ -76,6 +77,29 @@ public class VpNativePlugin extends Plugin {
             call.resolve(r);
         } catch (Exception e) {
             call.reject("Không lưu được: " + e.getMessage());
+        }
+    }
+
+    // Thử nghiệm: gửi bằng đường dẫn file thật (file://) để Zalo đọc thẳng file như trên máy tính
+    @PluginMethod
+    public void shareZaloFile(PluginCall call) {
+        String name = call.getString("name");
+        String text = call.getString("text", "");
+        if (name == null) { call.reject("Thiếu dữ liệu"); return; }
+        try {
+            File f = new File(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "VP"), name);
+            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().build());
+            Intent i = new Intent(Intent.ACTION_SEND);
+            i.setType(MIME);
+            i.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(f));
+            if (text != null && !text.isEmpty()) i.putExtra(Intent.EXTRA_TEXT, text);
+            i.setPackage(ZALO);
+            JSObject r = new JSObject();
+            try { getActivity().startActivity(i); r.put("zalo", true); }
+            catch (ActivityNotFoundException e) { r.put("zalo", false); }
+            call.resolve(r);
+        } catch (Exception e) {
+            call.reject("Không gửi được: " + e.getMessage());
         }
     }
 
