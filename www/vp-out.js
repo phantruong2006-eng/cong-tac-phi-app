@@ -9,7 +9,7 @@ window.vpOut = async function(name, b64, action, text){
       return `Đã lưu vào máy: ${r.path} (mở app "Tệp của tôi" → Tải về → VP).`;
     } else {
       const r = await VP.shareZalo({name, data:b64, text:text||''});
-      return r && r.zalo ? 'Đã mở Zalo — chọn người kế toán rồi bấm gửi.' : 'Máy chưa cài Zalo, anh chọn ứng dụng khác để gửi.';
+      return r && r.zalo ? 'Đã mở Zalo — chọn người kế toán rồi bấm gửi (file cũng được lưu trong Tải về/VP).' : 'Máy chưa cài Zalo, anh chọn ứng dụng khác để gửi.';
     }
   }
   const bin = atob(b64), u = new Uint8Array(bin.length); for (let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i);

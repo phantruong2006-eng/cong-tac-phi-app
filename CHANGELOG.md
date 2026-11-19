@@ -2,6 +2,11 @@
 
 Mỗi lần sửa app thì tăng số trong file `VERSION` (1.0 → 1.1 → 1.2 …).
 
+## 2.5
+- Gửi Zalo: app lưu file vào Tải về/VP rồi gửi chính file đó (giống gửi từ app Tệp), để Zalo giữ đúng tên tiếng Việt,
+  không gắn thêm chuỗi mã lạ ở đầu tên.
+- Lưu trùng tên thì ghi đè, không tạo thêm file "(1)".
+
 ## 2.4
 - Công tác phí: ô tháng gõ số trực tiếp (1–12), gõ sai báo lỗi. Tên file có số 0 trước tháng 1–9 (vd "tháng 09.2026") để xếp đúng thứ tự.
 - Bionote: tên file thêm tên anh: "Đề xuất Đặt hàng Bionote 19.11.2026 - Phan Đình Trường.xlsx".
