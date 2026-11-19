@@ -191,7 +191,7 @@ $('bExport').onclick=async()=>{
     const bin=atob(TPL_B64), u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i);
     items.forEach(i=>{ if(i.pet&&i.qty>0&&!alloc[i.r]) reroll(i); });
     const wb=await buildWorkbook(ExcelJS,u.buffer,items,alloc); const buf=await wb.xlsx.writeBuffer();
-    const d=new Date(), p=n=>String(n).padStart(2,'0'), name='ĐỀ_XUẤT_ĐẶT_HÀNG_BIONOTE_'+p(d.getDate())+'_'+p(d.getMonth()+1)+'_'+d.getFullYear()+'.xlsx';
+    const d=new Date(), p=n=>String(n).padStart(2,'0'), name='Đề xuất Đặt hàng Bionote '+p(d.getDate())+'.'+p(d.getMonth()+1)+'.'+d.getFullYear()+'.xlsx';
     const u8=new Uint8Array(buf); let bs=''; for(let i=0;i<u8.length;i+=0x8000) bs+=String.fromCharCode.apply(null,u8.subarray(i,i+0x8000));
     const info=await window.vpOut(name, btoa(bs), outAction, 'Gửi anh/chị kế toán file tổng hợp đặt hàng Bionote ngày '+p(d.getDate())+'/'+p(d.getMonth()+1)+'/'+d.getFullYear()+'.');
     $('msg').textContent='✔ '+info;

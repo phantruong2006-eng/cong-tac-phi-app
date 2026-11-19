@@ -2,6 +2,11 @@
 
 Mỗi lần sửa app thì tăng số trong file `VERSION` (1.0 → 1.1 → 1.2 …).
 
+## 2.1
+- Đổi tên file xuất (cả Lưu vào máy và Gửi Zalo):
+  - Công tác phí: "Công Tác Phí tháng - Phan Đình Trường MM.YYYY.xlsx" (MM.YYYY = tháng báo cáo, vd 10.2026).
+  - Đặt hàng Bionote: "Đề xuất Đặt hàng Bionote dd.mm.yyyy.xlsx" (ngày làm file, vd 19.11.2026).
+
 ## 2.0
 - Cả 2 tool: 2 nút "Lưu vào máy" (lưu vào Tải về/VP) và "Gửi qua Zalo" (mở thẳng Zalo kèm file Excel).
 - Công tác phí: lịch nghỉ lễ/Tết tự tính 20 năm (đến 2046) theo âm lịch: Tết (5 ngày), Giỗ Tổ 10/3 âm,
