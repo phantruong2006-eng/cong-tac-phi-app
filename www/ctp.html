@@ -332,7 +332,7 @@ async function makeFile(){
     if (!/fullCalcOnLoad/.test(wb)) wb = wb.replace(/<calcPr([^>]*?)\/>/,'<calcPr$1 fullCalcOnLoad="1"/>');
     zip.file('xl/workbook.xml', wb);
   }
-  const name = `Công Tác Phí tháng - Phan Đình Trường ${m}.${y}.xlsx`;
+  const name = `Công Tác Phí tháng ${m} - Phan Đình Trường ${m}.${y}.xlsx`;
   const b64 = await zip.generateAsync({type:'base64',compression:'DEFLATE'});
   return {name, b64, text:`Gửi anh/chị kế toán file công tác phí tháng ${m}/${y}.`};
 }

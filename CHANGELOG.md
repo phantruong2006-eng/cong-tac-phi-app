@@ -2,6 +2,9 @@
 
 Mỗi lần sửa app thì tăng số trong file `VERSION` (1.0 → 1.1 → 1.2 …).
 
+## 2.2
+- Công tác phí: tên file ghi rõ tháng báo cáo: "Công Tác Phí tháng 10 - Phan Đình Trường 10.2026.xlsx" (đổi theo tháng đã chọn).
+
 ## 2.1
 - Đổi tên file xuất (cả Lưu vào máy và Gửi Zalo):
   - Công tác phí: "Công Tác Phí tháng - Phan Đình Trường MM.YYYY.xlsx" (MM.YYYY = tháng báo cáo, vd 10.2026).
