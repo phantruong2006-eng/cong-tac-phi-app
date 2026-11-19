@@ -61,7 +61,7 @@ body{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
 <input type="search" id="q" placeholder="Tìm sản phẩm / mã..."> <label style="display:inline-flex;gap:6px;align-items:center;font-size:14px;margin:0 0 8px 4px"><input type="checkbox" id="onlyHas"> Chỉ hiện mã đã nhập</label>
 <div class="scroll"><table id="tin"><thead><tr><th>Mã ERP</th><th>Sản phẩm</th><th>Đóng gói</th><th>SL đặt</th></tr></thead><tbody></tbody></table></div></div>
 <div class="card"><h2>2. Kết quả chia cho khách (giống sheet Trang_tính1)</h2>
-<p class="hint">Chưa ưng thì bấm "🎲 Chia lại", hoặc <b>bấm vào ô số để sửa tay</b>. Cột "tổng" màu đỏ nghĩa là tổng chia đang lệch so với SL đặt.</p>
+<p class="hint">Chưa ưng thì bấm "🎲 Chia lại", hoặc <b>bấm vào ô số để sửa tay</b>. Bấm <b>＋ Khách</b> để thêm khách, <b>✕ xoá</b> dưới tên để bỏ khách. Cột "tổng" màu đỏ nghĩa là tổng chia đang lệch so với SL đặt.</p>
 <div class="scroll"><table class="pv" id="pv"></table></div>
 <details open style="margin-top:12px"><summary>👥 Khách hàng & tuỳ chọn</summary>
 <p class="hint">% khách nhận hàng cho mỗi mã: <input type="number" id="pct" min="5" max="100" value="50" style="width:60px"> %. Bỏ tick khách nào thì khách đó không được chia hàng.</p>
@@ -182,7 +182,7 @@ function buildInputs(){
 }
 function renderPV(){
   const rows=items.filter(i=>i.pet&&i.qty>0).sort((a,b)=>(a.main===null)-(b.main===null)||(a.main??0)-(b.main??0)||a.r-b.r);
-  const t=$('pv'); let h='<tr><th></th>'+cust.map(c=>'<th>'+c+'</th>').join('')+'<th>tổng</th></tr>';
+  const t=$('pv'); let h='<tr><th><button type="button" id="bQuickCust" style="background:#1f3864;color:#fff;border:0;border-radius:8px;padding:6px 8px;font-size:12px;white-space:nowrap">＋ Khách</button></th>'+cust.map((c,j)=>'<th>'+c+'<br><button type="button" data-x="'+j+'" style="background:none;border:0;color:#9b1c1c;font-size:12px;padding:2px">✕ xoá</button></th>').join('')+'<th>tổng</th></tr>';
   if(!rows.length) h+='<tr><td colspan="'+(cust.length+2)+'" style="color:#888;padding:14px">Chưa có mã nào được nhập số lượng.</td></tr>';
   rows.forEach(it=>{ if(!alloc[it.r]||alloc[it.r].length!==cust.length) reroll(it); const a=alloc[it.r]||cust.map(()=>0); const sm=a.reduce((x,y)=>x+y,0);
     h+='<tr><td>'+(it.main!==null?it.name.replace(/ \(.*\)/,''):it.name)+'</td>'+a.map((n,j)=>'<td class="n"><input type="number" inputmode="numeric" min="0" data-r="'+it.r+'" data-j="'+j+'" value="'+(n||'')+'" class="'+(n?'':'z')+'"></td>').join('')+'<td class="t'+(sm!==it.qty?' bad':'')+'">'+sm+(sm!==it.qty?'/'+it.qty:'')+'</td></tr>'; });
@@ -191,6 +191,11 @@ function renderPV(){
 $('pv').addEventListener('change',e=>{ const x=e.target; if(!x.dataset||x.dataset.j===undefined) return;
   const it=items.find(i=>String(i.r)===x.dataset.r); if(!it) return; if(!alloc[it.r]) alloc[it.r]=cust.map(()=>0);
   alloc[it.r][+x.dataset.j]=Math.max(0,Math.floor(+x.value||0)); setTimeout(renderPV,0); });
+$('pv').addEventListener('click',e=>{
+  if(e.target.id==='bQuickCust'){ const v=(prompt('Tên khách mới:')||'').trim(); if(!v) return;
+    if(cust.some(c=>c.toLowerCase()===v.toLowerCase())){ alert('Đã có khách "'+v+'".'); return; } cust.push(v); custChanged(); return; }
+  const b=e.target.closest('button[data-x]'); if(!b) return; const j=+b.dataset.x;
+  if(cust.length<=1){ alert('Phải còn ít nhất 1 khách.'); return; } if(!confirm('Xoá khách "'+cust[j]+'"?')) return; cust.splice(j,1); custChanged(); });
 $('pv').addEventListener('focusin',e=>{ if(e.target.select) e.target.select(); });
 function custChanged(){ saveCust(); flags=cust.map(()=>1); buildChk(); shuffleAll(); }
 $('bAddCust').onclick=()=>{ const v=$('newCust').value.trim(); if(!v) return; if(cust.some(c=>c.toLowerCase()===v.toLowerCase())){ alert('Đã có khách "'+v+'".'); return; } cust.push(v); $('newCust').value=''; custChanged(); };

@@ -2,6 +2,9 @@
 
 Mỗi lần sửa app thì tăng số trong file `VERSION` (1.0 → 1.1 → 1.2 …).
 
+## 2.8
+- Bionote: nút "＋ Khách" ngay đầu bảng "Kết quả chia" để thêm khách nhanh; "✕ xoá" dưới tên từng khách (kể cả 14 khách mặc định).
+
 ## 2.7
 - Gửi qua Zalo: bảng hướng dẫn 3 bước + nút "Mở Zalo"; thêm nút thử nghiệm "⚡ Gửi nhanh 1 chạm" (gửi đường dẫn file thật, xem Zalo có giữ đúng tên không).
 - Bionote:
