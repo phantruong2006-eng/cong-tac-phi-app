@@ -2,6 +2,12 @@
 
 Mỗi lần sửa app thì tăng số trong file `VERSION` (1.0 → 1.1 → 1.2 …).
 
+## 2.4
+- Công tác phí: ô tháng gõ số trực tiếp (1–12), gõ sai báo lỗi. Tên file có số 0 trước tháng 1–9 (vd "tháng 09.2026") để xếp đúng thứ tự.
+- Bionote: tên file thêm tên anh: "Đề xuất Đặt hàng Bionote 19.11.2026 - Phan Đình Trường.xlsx".
+  Đơn thứ 2 trong cùng ngày tự thêm "(lần 2)"; Lưu rồi Gửi Zalo cùng một đơn không bị tính 2 lần.
+- Cả 2 tool: nút "🕘 Lịch sử" xem 15 file gần nhất, gửi lại Zalo / Lưu lại / xoá.
+
 ## 2.3
 - Công tác phí: tên file gọn lại: "Công Tác Phí tháng 10.2026 - Phan Đình Trường.xlsx".
 

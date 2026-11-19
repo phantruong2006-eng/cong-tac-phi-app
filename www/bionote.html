@@ -6,7 +6,7 @@
 header{background:#1f3864;color:#fff;padding:calc(14px + env(safe-area-inset-top)) 16px 14px;position:sticky;top:0;z-index:5;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
 header h1{font-size:18px;margin:0;flex:1;min-width:220px}
 button{border:0;border-radius:6px;padding:10px 18px;font-size:14px;font-weight:bold;cursor:pointer}
-#bExport{background:#2e9e5b;color:#fff;font-size:15px}#bClear{background:#fde2e1;color:#9b1c1c}#bShuffle{background:#fff;color:#1f3864}#bReset{background:#c9d3e8;color:#1f3864}
+#bExport{background:#2e9e5b;color:#fff;font-size:15px}#bClear{background:#fde2e1;color:#9b1c1c}#bShuffle{background:#fff;color:#1f3864}#bHist{background:#fff;color:#1f3864}#bReset{background:#c9d3e8;color:#1f3864}
 main{max-width:1250px;margin:18px auto;padding:0 16px}
 .card{background:#fff;border-radius:10px;padding:16px 18px;margin-bottom:18px;box-shadow:0 1px 4px #0001}
 h2{font-size:16px;margin:0 0 10px;color:#1f3864}
@@ -29,7 +29,7 @@ body{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
 @media (max-width:640px){
  header{position:static;padding-left:12px;padding-right:12px;gap:8px}
  header h1{min-width:0;font-size:17px}
- header #bReset,header #bShuffle,header #bClear{flex:1}
+ header #bReset,header #bShuffle,header #bClear,header #bHist{flex:1}
  header button{padding:9px 12px;font-size:13px}
  #bExport{width:100%;font-size:15px;padding:12px}
  main{padding:0 10px;margin-top:12px}
@@ -49,7 +49,7 @@ body{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
   .vpsw .m a.on{background:#eef4ff;color:#1f6feb}
 </style></head><body>
 <header><div style="display:flex;align-items:center;gap:10px;width:100%"><h1 style="flex:1;min-width:0">VP <span style="font-weight:normal;font-size:12px;opacity:.75">· bản __APP_VERSION__</span></h1><div class="vpsw"><button type="button" id="vpswBtn">Đặt hàng Bionote ▾</button><div class="m" id="vpswMenu" hidden><a href="ctp.html">🗓 Công tác phí</a><a href="bionote.html" class="on">🧪 Đặt hàng Bionote</a></div></div></div><span id="msg"></span>
-<button id="bClear">Xoá hết số</button><button id="bReset">Số đơn mẫu</button><button id="bShuffle">🎲 Chia lại</button><button id="bExport" style="display:none">⬇ Xuất</button></header>
+<button id="bClear">Xoá hết số</button><button id="bReset">Số đơn mẫu</button><button id="bShuffle">🎲 Chia lại</button><button id="bHist" onclick="vpHistory()">🕘 Lịch sử</button><button id="bExport" style="display:none">⬇ Xuất</button></header>
 <main>
 <div class="card"><h2>1. Nhập số lượng đặt</h2>
 <p class="hint">Chỉ cần gõ số vào cột "SL đặt". Dòng nào có số sẽ tự được tô vàng và tự chia cho các khách ở bảng bên dưới.</p>
@@ -179,6 +179,15 @@ $('pct').onchange=shuffleAll;
 $('bReset').onclick=()=>{ items.forEach(i=>i.qty=init[i.r]||0); buildInputs(); shuffleAll(); saveQty(); updSum(); applyFilter(); };
 $('bClear').onclick=()=>{ if(!confirm('Xoá hết số lượng đã nhập?')) return; items.forEach(i=>i.qty=0); buildInputs(); shuffleAll(); saveQty(); updSum(); applyFilter(); };
 let outAction='zalo';
+// Đếm số đơn khác nhau trong cùng 1 ngày (cùng số lượng = cùng đơn, Lưu rồi Gửi Zalo không bị tính 2 lần)
+function bnLan(ds){
+  const sig=items.filter(i=>i.qty>0).map(i=>i.r+':'+i.qty).join(',');
+  let o={}; try{o=JSON.parse(localStorage.getItem('bn_lan')||'{}')}catch(e){}
+  if(o.d!==ds) o={d:ds,s:[]};
+  let k=o.s.indexOf(sig); if(k<0){ o.s.push(sig); k=o.s.length-1; }
+  try{localStorage.setItem('bn_lan',JSON.stringify(o))}catch(e){}
+  return k+1;
+}
 $('bSave').onclick=()=>{ if(!items.some(i=>i.qty>0)){ alert('Chưa nhập số lượng mã nào.'); return; } outAction='save'; $('bExport').click(); };
 $('bZalo').onclick=()=>{ if(!items.some(i=>i.qty>0)){ alert('Chưa nhập số lượng mã nào.'); return; } outAction='zalo'; $('bExport').click(); };
 function applyFilter(){ const k=$('q').value.toLowerCase().trim(), only=$('onlyHas').checked;
@@ -191,7 +200,7 @@ $('bExport').onclick=async()=>{
     const bin=atob(TPL_B64), u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i);
     items.forEach(i=>{ if(i.pet&&i.qty>0&&!alloc[i.r]) reroll(i); });
     const wb=await buildWorkbook(ExcelJS,u.buffer,items,alloc); const buf=await wb.xlsx.writeBuffer();
-    const d=new Date(), p=n=>String(n).padStart(2,'0'), name='Đề xuất Đặt hàng Bionote '+p(d.getDate())+'.'+p(d.getMonth()+1)+'.'+d.getFullYear()+'.xlsx';
+    const d=new Date(), p=n=>String(n).padStart(2,'0'), ds=p(d.getDate())+'.'+p(d.getMonth()+1)+'.'+d.getFullYear(), lan=bnLan(ds), name='Đề xuất Đặt hàng Bionote '+ds+(lan>1?' (lần '+lan+')':'')+' - Phan Đình Trường.xlsx';
     const u8=new Uint8Array(buf); let bs=''; for(let i=0;i<u8.length;i+=0x8000) bs+=String.fromCharCode.apply(null,u8.subarray(i,i+0x8000));
     const info=await window.vpOut(name, btoa(bs), outAction, 'Gửi anh/chị kế toán file tổng hợp đặt hàng Bionote ngày '+p(d.getDate())+'/'+p(d.getMonth()+1)+'/'+d.getFullYear()+'.');
     $('msg').textContent='✔ '+info;

@@ -46,6 +46,7 @@
   .outbtns{display:flex;gap:10px;margin-top:10px}
   .outbtns button{flex:1;font-size:16px;padding:14px 8px}
   button.sec2{background:transparent;color:var(--pri);border:2px solid var(--pri)}
+  button.vphist{display:block;width:100%;margin-top:10px;background:transparent;color:var(--pri);border:1px dashed var(--pri);font-size:14px;padding:10px}
   button.zalo{background:#0068ff;color:#fff}
 </style>
 </head>
@@ -56,13 +57,14 @@
   <div class="card">
     <div class="row" style="justify-content:space-between">
       <span class="mut">Báo cáo tháng</span>
-      <span><select id="month"></select> / <input type="number" id="year" style="width:84px"></span>
+      <span><input type="number" id="month" inputmode="numeric" min="1" max="12" style="width:64px;text-align:center;font-weight:700"> / <input type="number" id="year" style="width:84px"></span>
     </div>
     <p class="step" style="margin:6px 0 8px">Số ngày công tác</p>
     <input type="number" id="ndays" inputmode="numeric" min="1" max="31" class="big">
     <div class="chips"><button class="chip" data-n="18">18</button><button class="chip" data-n="20">20</button><button class="chip" data-n="22">22</button><button class="chip" data-n="24">24</button></div>
     <p class="msg" id="calcMsg"></p>
     <div class="outbtns"><button id="bSave" type="button" class="sec2">💾 Lưu vào máy</button><button id="bZalo" type="button" class="zalo">Gửi qua Zalo</button></div>
+    <button type="button" class="vphist" onclick="vpHistory()">🕘 Lịch sử file đã gửi</button>
     <p class="msg" id="dlMsg"></p>
     <details id="daysBox" style="margin-top:12px"><summary id="daysSum">Xem các ngày đã chọn</summary>
       <div class="row" style="margin:8px 0"><button class="sec" id="reroll" type="button">Chọn lại ngày khác</button></div>
@@ -125,7 +127,6 @@ let zip, sheetPath, sheetXml, rows = [], origName = '', chosen = [];
 const THU = ['Chủ nhật','Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy'];
 const p2 = n => String(n).padStart(2,'0');
 
-for (let m=1;m<=12;m++) $('month').insertAdjacentHTML('beforeend', `<option value="${m}">${m}</option>`);
 
 function loadHol(){ let v=null; try{v=localStorage.getItem('ctp_hol_extra')}catch(e){} $('hol').value = v || ''; }
 function saveHol(){ try{localStorage.setItem('ctp_hol_extra',$('hol').value)}catch(e){} }
@@ -222,7 +223,7 @@ function validDays(y,m){
 function recalc(reroll){
   if(!rows.length) return;
   const y=+$('year').value, m=+$('month').value;
-  if(!y||!m) return;
+  if(!y||!m||m<1||m>12||m%1) return;
   const {out, hit} = validDays(y,m);
   let want = Math.max(1, Math.floor(+$('ndays').value || rows.length));
   const N = Math.min(want, out.length);
@@ -260,7 +261,8 @@ function recalc(reroll){
   $('step3').classList.remove('hide');
   $('dlMsg').textContent='';
 }
-$('month').onchange=()=>recalc(true);
+$('month').oninput=()=>recalc(true);
+$('month').onfocus=e=>e.target.select();
 $('year').oninput=()=>recalc(true);
 $('mode').onchange=()=>recalc(true);
 $('ndays').oninput=()=>recalc(true);
@@ -332,12 +334,13 @@ async function makeFile(){
     if (!/fullCalcOnLoad/.test(wb)) wb = wb.replace(/<calcPr([^>]*?)\/>/,'<calcPr$1 fullCalcOnLoad="1"/>');
     zip.file('xl/workbook.xml', wb);
   }
-  const name = `Công Tác Phí tháng ${m}.${y} - Phan Đình Trường.xlsx`;
+  const name = `Công Tác Phí tháng ${String(m).padStart(2,'0')}.${y} - Phan Đình Trường.xlsx`;
   const b64 = await zip.generateAsync({type:'base64',compression:'DEFLATE'});
   return {name, b64, text:`Gửi anh/chị kế toán file công tác phí tháng ${m}/${y}.`};
 }
 async function doOut(action){
   if(!rows.length){ $('dlMsg').innerHTML='<span class="warn">Chưa có file mẫu.</span>'; return; }
+  { const mm=+$('month').value; if(!(mm>=1&&mm<=12&&mm%1===0)){ $('dlMsg').innerHTML='<span class="warn">Tháng phải từ 1 đến 12.</span>'; return; } }
   try{
     const f = await makeFile();
     const msg = await window.vpOut(f.name, f.b64, action, f.text);
