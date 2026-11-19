@@ -230,6 +230,8 @@ function recalc(reroll){
   if (y>2027 || (y===2027 && m<=3)) { msg += `<br><span class="warn">Lưu ý: kiểm tra danh sách ngày lễ/Tết của năm ${y} (mục bên dưới) đã đủ chưa.</span>`; }
   msg = `Tháng ${m}/${y} có ${out.length} ngày đi được (bỏ Chủ nhật${hit.length?', lễ '+hit.map(d=>p2(d)+'/'+p2(m)).join(', '):''}).`;
   if (want>out.length) msg += `<br>⚠ Chỉ lấy được ${out.length} ngày.`;
+  { let tot=0; for(let i=0;i<chosen.length;i++){ tot += vOf(sheetXml,'C'+(START_ROW+Math.min(i,rows.length-1))); }
+    msg += `<br><b>Tổng tiền: ${tot.toLocaleString('vi-VN')} đ</b> (${chosen.length} ngày)`; }
   document.querySelectorAll('.chip').forEach(c=>c.classList.toggle('on', +c.dataset.n===chosen.length));
   $('daysSum').textContent = `Xem ${chosen.length} ngày đã chọn`;
   $('calcMsg').className='msg '+cls; $('calcMsg').innerHTML=msg;

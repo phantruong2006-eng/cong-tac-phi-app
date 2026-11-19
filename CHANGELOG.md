@@ -2,6 +2,15 @@
 
 Mỗi lần sửa app thì tăng số trong file `VERSION` (1.0 → 1.1 → 1.2 …).
 
+## 1.9
+- Công tác phí: hiện "Tổng tiền" ngay trên nút gửi để kiểm tra trước khi gửi kế toán.
+- Đặt hàng Bionote:
+  - Thanh dưới cùng luôn hiện "X mã · Y SL" + nút xanh "Xuất & gửi kế toán" (không phải kéo lên đầu).
+  - Nút "Xoá hết số" để bắt đầu đơn mới; "Số đơn mẫu" để lấy lại số trong file mẫu.
+  - Ô "Chỉ hiện mã đã nhập" để soát lại đơn trước khi gửi.
+  - Tự nhớ số đã nhập, lỡ thoát app mở lại vẫn còn.
+  - Lời nhắn khi gửi: "Gửi anh/chị kế toán file tổng hợp đặt hàng Bionote ngày …".
+
 ## 1.8
 - Đổi tên app thành VP, biểu tượng tờ giấy trắng (công việc văn phòng).
 - Bỏ màn hình menu: mở app vào thẳng tool dùng lần trước (lần đầu là Công tác phí).
