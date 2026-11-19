@@ -2,6 +2,11 @@
 
 Mỗi lần sửa app thì tăng số trong file `VERSION` (1.0 → 1.1 → 1.2 …).
 
+## 2.6
+- Tên file ngắn lại: "CTP T10.2026 - Phan Đình Trường.xlsx", "Đặt hàng Bionote 19.11.2026 - Phan Đình Trường.xlsx".
+- Gửi qua Zalo: Zalo luôn gắn mã lạ vào tên file nhận qua "Chia sẻ", nên app lưu file vào Download/VP rồi mở Zalo;
+  anh bấm ••• → Tài liệu → Download → VP → chọn file (giữ đúng tên).
+
 ## 2.5
 - Gửi Zalo: app lưu file vào Tải về/VP rồi gửi chính file đó (giống gửi từ app Tệp), để Zalo giữ đúng tên tiếng Việt,
   không gắn thêm chuỗi mã lạ ở đầu tên.

@@ -80,6 +80,18 @@ public class VpNativePlugin extends Plugin {
     }
 
     @PluginMethod
+    public void openZalo(PluginCall call) {
+        JSObject r = new JSObject();
+        Intent i = new Intent(Intent.ACTION_MAIN);
+        i.addCategory(Intent.CATEGORY_LAUNCHER);
+        i.setPackage(ZALO);
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        try { getActivity().startActivity(i); r.put("zalo", true); }
+        catch (ActivityNotFoundException e) { r.put("zalo", false); }
+        call.resolve(r);
+    }
+
+    @PluginMethod
     public void shareZalo(PluginCall call) {
         String name = call.getString("name");
         String data = call.getString("data");
