@@ -2,6 +2,13 @@
 
 Mỗi lần sửa app thì tăng số trong file `VERSION` (1.0 → 1.1 → 1.2 …).
 
+## 2.0
+- Cả 2 tool: 2 nút "Lưu vào máy" (lưu vào Tải về/VP) và "Gửi qua Zalo" (mở thẳng Zalo kèm file Excel).
+- Công tác phí: lịch nghỉ lễ/Tết tự tính 20 năm (đến 2046) theo âm lịch: Tết (5 ngày), Giỗ Tổ 10/3 âm,
+  30/4, 1/5, 2/9 + 1 ngày liền kề, 24/11 (Ngày Văn hóa VN, từ 2026), 1/1, kèm nghỉ bù khi lễ trùng T7/CN.
+- Dùng lịch chính thức đã công bố cho 2026 (đã thêm 24/11/2026) và 2027 (Tết 4–10/2, Quốc khánh 2–3/9).
+- Cài đặt: xem danh sách ngày nghỉ của năm; thêm ngày nghỉ riêng của công ty hoặc bỏ ngày (gõ -dd/mm/yyyy).
+
 ## 1.9
 - Công tác phí: hiện "Tổng tiền" ngay trên nút gửi để kiểm tra trước khi gửi kế toán.
 - Đặt hàng Bionote:

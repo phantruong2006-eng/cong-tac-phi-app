@@ -39,6 +39,15 @@ jobs:
           sed -i "s/versionCode [0-9]*/versionCode ${{ github.run_number }}/; s/versionName \"[^\"]*\"/versionName \"${VER}\"/" android/app/build.gradle
           grep -E "versionCode|versionName" android/app/build.gradle
 
+      - name: Them ma Android (Luu vao may, Gui qua Zalo)
+        run: |
+          pkg=android/app/src/main/java/vn/truong/congtacphi
+          ls $pkg
+          cp native/MainActivity.java native/VpNativePlugin.java $pkg/
+          mkdir -p android/app/src/main/res/xml
+          cp native/file_paths.xml android/app/src/main/res/xml/file_paths.xml
+          grep -n "fileprovider" android/app/src/main/AndroidManifest.xml
+
       - name: Gan bieu tuong app (to giay trang)
         run: |
           for d in mdpi hdpi xhdpi xxhdpi xxxhdpi; do
