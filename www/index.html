@@ -182,7 +182,8 @@ async function loadBuf(buf, fname, isTemplate){
     if (!rows.length) throw new Error('Không tìm thấy cột ngày (bắt đầu từ ô A11).');
     const [y,m] = fromSerial(rows[0].val);
     const now = new Date();
-    let nm = now.getMonth()+1, ny = now.getFullYear();
+    // Làm file tháng này = báo cáo cho tháng trước
+    let nm = now.getMonth(), ny = now.getFullYear(); if (nm===0){ nm=12; ny--; }
     let saved=null; try{saved=JSON.parse(localStorage.getItem('ctp_last')||'null')}catch(e){}
     $('month').value=nm; $('year').value=ny;
     if (saved && saved.n) $('ndays').value = saved.n;
@@ -313,8 +314,8 @@ $('dl').onclick = async ()=>{
     if (!/fullCalcOnLoad/.test(wb)) wb = wb.replace(/<calcPr([^>]*?)\/>/,'<calcPr$1 fullCalcOnLoad="1"/>');
     zip.file('xl/workbook.xml', wb);
   }
-  let name = origName.replace(/T\d{1,2}[.\-_]\d{4}/, `T${m}.${y}`);
-  if (name===origName) name = origName.replace(/\.xlsx$/i, ` - T${m}.${y}.xlsx`);
+  const reT = /T\d{1,2}[.\-_]\d{4}/;
+  let name = reT.test(origName) ? origName.replace(reT, `T${m}.${y}`) : origName.replace(/\.xlsx$/i, ` - T${m}.${y}.xlsx`);
   const cap = window.Capacitor;
   const native = cap && cap.isNativePlatform && cap.isNativePlatform();
   if (native && cap.Plugins && cap.Plugins.Filesystem && cap.Plugins.Share){
