@@ -23,6 +23,12 @@ jobs:
           distribution: temurin
           java-version: 17
 
+      - name: Doc so phien ban
+        run: echo "VER=$(cat VERSION | tr -d '[:space:]')" >> $GITHUB_ENV
+
+      - name: Ghi phien ban vao app
+        run: sed -i "s/__APP_VERSION__/${VER}/" www/index.html
+
       - name: Cai thu vien
         run: npm install
 
@@ -30,22 +36,25 @@ jobs:
         run: |
           npx cap add android
           npx cap sync android
+          sed -i "s/versionCode [0-9]*/versionCode ${{ github.run_number }}/; s/versionName \"[^\"]*\"/versionName \"${VER}\"/" android/app/build.gradle
+          grep -E "versionCode|versionName" android/app/build.gradle
 
       - name: Build APK
         working-directory: android
         run: ./gradlew assembleDebug --no-daemon
 
       - name: Doi ten APK
-        run: cp android/app/build/outputs/apk/debug/app-debug.apk CTP.apk
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk CTP-${VER}.apk
 
       - uses: actions/upload-artifact@v4
         with:
-          name: CTP.apk
-          path: CTP.apk
+          name: CTP-${{ env.VER }}
+          path: CTP-${{ env.VER }}.apk
 
       - name: Dang len Releases (de tai ve dien thoai)
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: latest
-          name: CTP (ban moi nhat)
-          files: CTP.apk
+          tag_name: v${{ env.VER }}
+          name: CTP ${{ env.VER }}
+          files: CTP-${{ env.VER }}.apk
+          make_latest: true
