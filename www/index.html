@@ -39,13 +39,15 @@
   <p class="sub">Chỉ đổi cột <b>Ngày</b>. Mọi thứ khác trong file (nơi đến, số tiền, định dạng, chữ ký…) giữ nguyên. Bỏ Chủ nhật và ngày lễ/Tết.</p>
 
   <div class="card">
-    <p class="step"><b>1</b>Chọn file công tác phí tháng trước</p>
-    <input type="file" id="file">
-    <p class="msg" id="fileMsg"></p>
+    <p class="step"><b>1</b>File mẫu công tác phí</p>
+    <p class="msg" id="fileMsg">Đang mở file mẫu có sẵn…</p>
+    <details style="margin-top:10px"><summary>Dùng file khác</summary>
+      <input type="file" id="file" style="margin-top:8px">
+    </details>
   </div>
 
   <div class="card hide" id="step2">
-    <p class="step"><b>2</b>Chọn tháng mới</p>
+    <p class="step"><b>2</b>Chọn tháng và số ngày</p>
     <div class="row">
       <label>Tháng <select id="month"></select></label>
       <label>Năm <input type="number" id="year" style="width:90px"></label>
@@ -69,8 +71,8 @@
   </div>
 
   <div class="card hide" id="step3">
-    <p class="step"><b>3</b>Tải file về</p>
-    <button id="dl" type="button">Tải file đã sửa ngày</button>
+    <p class="step"><b>3</b>Gửi file cho kế toán</p>
+    <button id="dl" type="button" style="width:100%">Tạo file &amp; gửi cho kế toán</button>
     <p class="msg" id="dlMsg"></p>
   </div>
 
@@ -155,11 +157,22 @@ function scanRows(){
 
 $('file').addEventListener('change', async e=>{
   const f = e.target.files[0]; if(!f) return;
-  if (!/\.xlsx$/i.test(f.name)) { $('fileMsg').innerHTML=`<span class="warn">File "${f.name}" không phải file Excel .xlsx. Anh chọn lại nhé.</span>`; $('step2').classList.add('hide'); $('step3').classList.add('hide'); return; }
+  if (!/\.xlsx$/i.test(f.name)) { $('fileMsg').innerHTML=`<span class="warn">File "${f.name}" không phải file Excel .xlsx. Anh chọn lại nhé.</span>`; return; }
+  await loadBuf(await f.arrayBuffer(), f.name, false);
+});
+const TEMPLATE_NAME = 'Công tác phí T10.2026 - Phan Đình Trường.xlsx';
+(async()=>{
+  try{
+    const r = await fetch('template.xlsx'); if(!r.ok) throw new Error('HTTP '+r.status);
+    await loadBuf(await r.arrayBuffer(), TEMPLATE_NAME, true);
+  }catch(err){ $('fileMsg').innerHTML=`<span class="warn">Không mở được file mẫu (${err.message}). Anh bấm "Dùng file khác" để chọn file.</span>`; }
+})();
+async function loadBuf(buf, fname, isTemplate){
+  const f = {name:fname};
   $('fileMsg').textContent=''; $('step2').classList.add('hide'); $('step3').classList.add('hide');
   try{
     origName = f.name;
-    zip = await JSZip.loadAsync(await f.arrayBuffer());
+    zip = await JSZip.loadAsync(buf);
     sheetPath = 'xl/worksheets/sheet1.xml';
     if (!zip.file(sheetPath)){
       sheetPath = Object.keys(zip.files).find(n=>/^xl\/worksheets\/sheet\d+\.xml$/.test(n));
@@ -168,16 +181,19 @@ $('file').addEventListener('change', async e=>{
     scanRows();
     if (!rows.length) throw new Error('Không tìm thấy cột ngày (bắt đầu từ ô A11).');
     const [y,m] = fromSerial(rows[0].val);
-    let nm=m+1, ny=y; if(nm>12){nm=1;ny++}
+    const now = new Date();
+    let nm = now.getMonth()+1, ny = now.getFullYear();
+    let saved=null; try{saved=JSON.parse(localStorage.getItem('ctp_last')||'null')}catch(e){}
     $('month').value=nm; $('year').value=ny;
-    $('nrows').textContent=rows.length; $('ndays').value=rows.length;
-    $('fileMsg').innerHTML=`<span class="ok">Đã đọc file.</span> Tìm thấy <b>${rows.length}</b> dòng ngày (A${rows[0].r}–A${rows[rows.length-1].r}), đang là tháng ${m}/${y}.`;
+    if (saved && saved.n) $('ndays').value = saved.n;
+    $('nrows').textContent=rows.length; if(!(saved && saved.n)) $('ndays').value=rows.length;
+    $('fileMsg').innerHTML=(isTemplate?`<span class="ok">Đang dùng file mẫu có sẵn</span> (${fname}). `:`<span class="ok">Đã đọc file ${fname}.</span> `)+`Tìm thấy <b>${rows.length}</b> dòng ngày (A${rows[0].r}–A${rows[rows.length-1].r}), đang là tháng ${m}/${y}.`;
     $('step2').classList.remove('hide');
     recalc(true);
   }catch(err){
     $('fileMsg').innerHTML=`<span class="warn">Không đọc được file: ${err.message}</span>`;
   }
-});
+}
 
 function validDays(y,m){
   const hs = holSet(), n = new Date(y,m,0).getDate(), out=[], hit=[];
@@ -284,6 +300,14 @@ $('dl').onclick = async ()=>{
   const y=+$('year').value, m=+$('month').value;
   const xml = buildSheet(y,m);
   zip.file(sheetPath, xml);
+  const ssf = zip.file('xl/sharedStrings.xml');
+  if (ssf){
+    const last = new Date(y,m,0).getDate();
+    let ss = await ssf.async('string');
+    ss = ss.replace(/Ngày:\s*\d{1,2}\s*\/\s*\d{1,2}\s*\/\s*\d{4}/, `Ngày:  ${last} / ${m}  /${y}`);
+    zip.file('xl/sharedStrings.xml', ss);
+  }
+  try{ localStorage.setItem('ctp_last', JSON.stringify({n:+$('ndays').value||chosen.length})) }catch(e){}
   if (chosen.length!==rows.length){
     let wb = await zip.file('xl/workbook.xml').async('string');
     if (!/fullCalcOnLoad/.test(wb)) wb = wb.replace(/<calcPr([^>]*?)\/>/,'<calcPr$1 fullCalcOnLoad="1"/>');
@@ -297,8 +321,8 @@ $('dl').onclick = async ()=>{
     try{
       const b64 = await zip.generateAsync({type:'base64',compression:'DEFLATE'});
       const saved = await cap.Plugins.Filesystem.writeFile({path:name, data:b64, directory:'CACHE'});
-      await cap.Plugins.Share.share({title:name, url:saved.uri, dialogTitle:'Lưu hoặc mở file đã sửa'});
-      $('dlMsg').innerHTML=`<span class="ok">Đã tạo: ${name}</span> — chọn nơi lưu (Drive, Zalo, Tệp của tôi…) hoặc mở bằng Excel.`;
+      await cap.Plugins.Share.share({title:name, text:`Gửi anh/chị kế toán file công tác phí tháng ${m}/${y}.`, url:saved.uri, dialogTitle:'Gửi file cho kế toán'});
+      $('dlMsg').innerHTML=`<span class="ok">Đã tạo: ${name}</span> — chọn Zalo/Gmail rồi chọn người kế toán để gửi.`;
     }catch(err){
       if (/cancel|dismiss/i.test(String(err && (err.message||err)))) $('dlMsg').textContent='Đã đóng khung chia sẻ.';
       else $('dlMsg').innerHTML=`<span class="warn">Không lưu được file: ${err && (err.message||err)}</span>`;

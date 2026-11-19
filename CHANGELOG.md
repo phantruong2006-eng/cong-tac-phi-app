@@ -2,6 +2,13 @@
 
 Mỗi lần sửa app thì tăng số trong file `VERSION` (1.0 → 1.1 → 1.2 …).
 
+## 1.2
+- Có sẵn file mẫu công tác phí (T10.2026 – Phan Đình Trường) trong app: mở app là dùng luôn, không cần chọn file.
+- Tự chọn tháng hiện tại; chỉ cần nhập số ngày, app nhớ số ngày lần trước.
+- Tự sửa ô "Ngày: … / … / …" (ngày lập báo cáo) thành ngày cuối tháng.
+- Nút "Tạo file & gửi cho kế toán" mở khung chia sẻ để gửi qua Zalo/Gmail.
+- Vẫn có mục "Dùng file khác" nếu cần chọn file khác.
+
 ## 1.1
 - Sửa lỗi bấm "Chọn tệp" trên điện thoại không thấy file nào: giờ hiện mọi file, app tự kiểm tra có đúng file Excel .xlsx không.
 
