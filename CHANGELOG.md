@@ -2,6 +2,9 @@
 
 Mỗi lần sửa app thì tăng số trong file `VERSION` (1.0 → 1.1 → 1.2 …).
 
+## 2.9
+- Đặt hàng Bionote: nhận số lượng nên đặt từ app BH offline (Báo cáo VTD › Đặt hàng › "Gửi sang app VP"). App VP tự mở trang Bionote, điền "SL đặt" theo tên test, mã nào chưa khớp thì báo để gõ tay.
+
 ## 2.8
 - Bionote: nút "＋ Khách" ngay đầu bảng "Kết quả chia" để thêm khách nhanh; "✕ xoá" dưới tên từng khách (kể cả 14 khách mặc định).
 

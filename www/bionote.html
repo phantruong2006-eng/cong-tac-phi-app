@@ -244,6 +244,22 @@ $('bExport').onclick=async()=>{
   }catch(e){ alert('Lỗi khi xuất file: '+e.message); }
 };
 buildInputs(); buildChk(); shuffleAll(); updSum();
+// ---- Nhận số lượng nên đặt từ app BH offline (bản 2.9): khớp theo tên test ----
+function bnKey(n){ n=String(n||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d');
+  n=n.replace(/vcheck/g,' ').replace(/\([^)]*\)/g,' ').replace(/\b\d\.\d\b/g,' ').replace(/3 lines/g,' ').replace(/[^a-z0-9]/g,'');
+  const A={fsaa:'felinesaa',ccrp:'caninecrp',crp:'caninecrp',cortisol:'ccortisol',progesterone:'cprogesterone',felineprobnp:'felinentprobnp',canineprobnp:'caninentprobnp'};
+  return A[n]||n; }
+window.vpApplyIncoming=function(txt){
+  let o; try{ o=JSON.parse(txt); }catch(e){ alert('Dữ liệu từ BH offline bị lỗi.'); return; }
+  const list=(o.items||[]).filter(x=>(+x.qty||0)>0); if(!list.length){ alert('BH offline chưa có mã nào cần đặt.'); return; }
+  if(items.some(i=>i.qty>0) && !confirm('Thay số đang nhập bằng '+list.length+' mã từ BH offline ('+(o.note||'')+')?')) return;
+  items.forEach(i=>i.qty=0);
+  const miss=[]; let n=0;
+  list.forEach(x=>{ const k=bnKey(x.name); const it=items.find(i=>i.pet&&bnKey(i.name)===k)||items.find(i=>bnKey(i.name)===bnKey(x.full||'')&&x.full);
+    if(it){ it.qty+=Math.round(+x.qty); n++; } else miss.push(x.name+' '+x.qty); });
+  buildInputs(); shuffleAll(); saveQty(); updSum(); $('onlyHas').checked=true; applyFilter();
+  alert('Đã nhận từ BH offline: '+n+' mã'+(o.note?' ('+o.note+')':'')+'.'+(miss.length?'\nChưa khớp, gõ tay giúp: '+miss.join(', '):'')+'\nKiểm tra số rồi bấm Lưu / Gửi Zalo.');
+};
 </script><script>
 try{localStorage.setItem('vp_tool',location.pathname.split('/').pop()||'ctp.html')}catch(e){}
 document.getElementById('vpswBtn').onclick=e=>{e.stopPropagation();const m=document.getElementById('vpswMenu');m.hidden=!m.hidden;};

@@ -65,6 +65,16 @@ public class VpNativePlugin extends Plugin {
         }
     }
 
+    // Lấy số lượng nên đặt do app BH offline gửi sang (take=true thì xoá sau khi lấy)
+    @PluginMethod
+    public void incoming(PluginCall call) {
+        JSObject r = new JSObject();
+        String d = MainActivity.incoming;
+        r.put("data", d == null ? "" : d);
+        if (call.getBoolean("take", false)) MainActivity.incoming = null;
+        call.resolve(r);
+    }
+
     @PluginMethod
     public void saveToDownloads(PluginCall call) {
         String name = call.getString("name");

@@ -92,3 +92,26 @@ window.vpZaloGuide = function(name){
     ov.onclick=e=>{ const b=e.target.closest('button[data-a]'); const a=b?b.dataset.a:(e.target===ov?'cancel':null); if(!a) return; ov.remove(); res(a); };
   });
 };
+
+
+// ===== Nhận số lượng nên đặt từ app BH offline (bản 2.9) =====
+window.vpIncoming = async function(take){
+  const cap = window.Capacitor;
+  if (!(cap && cap.isNativePlatform && cap.isNativePlatform())) return '';
+  try{ const VP = cap.registerPlugin ? cap.registerPlugin('VpNative') : cap.Plugins.VpNative; const r = await VP.incoming({take: !!take}); return (r && r.data) || ''; }catch(e){ return ''; }
+};
+(function(){
+  const page = location.pathname.split('/').pop() || 'ctp.html';
+  let busy = false;
+  async function check(){
+    if (busy) return; busy = true;
+    try{
+      const d = await window.vpIncoming(false);
+      if (!d) return;
+      if (page !== 'bionote.html'){ location.replace('bionote.html'); return; }
+      if (window.vpApplyIncoming){ const t = await window.vpIncoming(true); if (t) window.vpApplyIncoming(t); }
+    } finally { busy = false; }
+  }
+  window.addEventListener('vpIncoming', check);
+  setTimeout(check, 400);
+})();
