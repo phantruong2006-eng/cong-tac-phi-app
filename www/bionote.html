@@ -26,6 +26,12 @@ tr.has td{background:#fff8e1}
 .chk label{position:relative}.chk .del{margin-left:4px;background:#fde2e1;color:#9b1c1c;border:0;border-radius:6px;padding:1px 7px;font-size:12px}
 details summary{cursor:pointer;font-weight:bold;color:#1f3864}
 .chk label{display:inline-block;margin:4px 14px 4px 0;font-size:13px}
+td .g{display:block;font-size:11px;color:#8a93a6;margin-top:2px;white-space:nowrap}td .g.ch{color:#c75b00;font-weight:bold}
+.mt{background:#e2efda;color:#1b6b2b;font-weight:bold;border-radius:6px;padding:1px 6px;font-size:11px;margin-left:4px;white-space:nowrap}
+#sugBox{background:#e8f1ff;border:1px solid #9cc0ff;border-radius:8px;padding:8px 10px;font-size:13px;margin:0 0 8px}
+.bigbtn{display:block;width:100%;margin-top:10px;background:#1f3864;color:#fff;border:0;border-radius:10px;padding:12px;font-size:15px;font-weight:bold}
+.bigbtn[hidden],#sugBox[hidden]{display:none}
+#addHead{display:none;font-size:15px;font-weight:bold;color:#1f3864;margin:4px 0 6px}
 #msg{font-size:13px;color:#2e9e5b;font-weight:bold}
 body{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
 #bar{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid #d9dfeb;box-shadow:0 -4px 16px #0001;padding:10px 14px calc(10px + env(safe-area-inset-bottom));display:flex;gap:12px;align-items:center;z-index:40}
@@ -58,8 +64,8 @@ body{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
 <main>
 <div class="card"><h2>1. Nhập số lượng đặt</h2>
 <p class="hint">Chỉ cần gõ số vào cột "SL đặt". Dòng nào có số sẽ tự được tô vàng và tự chia cho các khách ở bảng bên dưới.</p>
-<input type="search" id="q" placeholder="Tìm sản phẩm / mã..."> <label style="display:inline-flex;gap:6px;align-items:center;font-size:14px;margin:0 0 8px 4px"><input type="checkbox" id="onlyHas"> Chỉ hiện mã đã nhập</label>
-<div class="scroll"><table id="tin"><thead><tr><th>Mã ERP</th><th>Sản phẩm</th><th>Đóng gói</th><th>SL đặt</th></tr></thead><tbody></tbody></table></div></div>
+<div id="sugBox" hidden></div><div id="addHead">➕ Thêm mã khác: gõ tên để tìm, gõ số vào mã cần đặt</div><input type="search" id="q" placeholder="Tìm sản phẩm / mã..."> <label style="display:inline-flex;gap:6px;align-items:center;font-size:14px;margin:0 0 8px 4px"><input type="checkbox" id="onlyHas"> Chỉ hiện mã đã nhập</label>
+<div class="scroll"><table id="tin"><thead><tr><th>Mã ERP</th><th>Sản phẩm</th><th>Đóng gói</th><th>SL đặt</th></tr></thead><tbody></tbody></table></div><button type="button" class="bigbtn" id="bAddCode" hidden>＋ Thêm mã khác</button><button type="button" class="bigbtn" id="bAddDone" hidden>✓ Xong · về danh sách đặt</button></div>
 <div class="card"><h2>2. Kết quả chia cho khách (giống sheet Trang_tính1)</h2>
 <p class="hint">Chưa ưng thì bấm "🎲 Chia lại", hoặc <b>bấm vào ô số để sửa tay</b>. Bấm <b>＋ Khách</b> để thêm khách, <b>✕ xoá</b> dưới tên để bỏ khách. Cột "tổng" màu đỏ nghĩa là tổng chia đang lệch so với SL đặt.</p>
 <div class="scroll"><table class="pv" id="pv"></table></div>
@@ -162,6 +168,15 @@ const items=DATA.items, init={};
 let cust=(function(){ try{ const c=JSON.parse(localStorage.getItem('bn_cust')||'null'); if(Array.isArray(c)&&c.length) return c; }catch(e){} return DATA.cust.slice(); })();
 function saveCust(){ try{ localStorage.setItem('bn_cust',JSON.stringify(cust)); }catch(e){} } items.forEach(i=>init[i.r]=i.qty);
 (function(){ try{ const sv=JSON.parse(localStorage.getItem('bn_qty')||'null'); if(sv) items.forEach(i=>{ i.qty = +sv[i.r]||0; }); }catch(e){} })();
+let sugg=(function(){ try{ return JSON.parse(localStorage.getItem('bn_sugg')||'null'); }catch(e){ return null; } })();
+function saveSugg(){ try{ if(sugg) localStorage.setItem('bn_sugg',JSON.stringify(sugg)); else localStorage.removeItem('bn_sugg'); }catch(e){} }
+function sugNote(it){ if(!sugg) return '';
+  const g=sugg.q[it.r];
+  if(g===undefined) return it.qty>0?'<span class="g ch">anh thêm</span>':'';
+  if(it.qty===g) return '<span class="g">gợi ý '+g+'</span>';
+  return '<span class="g ch">gợi ý '+g+(it.qty>0?' · anh sửa':' · anh bỏ')+'</span>'; }
+function renderSug(){ const b=$('sugBox'); if(!sugg){ b.hidden=true; return; } b.hidden=false;
+  b.innerHTML='📥 Gợi ý từ BH offline'+(sugg.note?' ('+sugg.note+')':'')+': '+Object.keys(sugg.q).length+' mã. <b>Gõ vào ô để sửa</b>, gõ 0 để bỏ mã. Chữ nhỏ dưới ô = số gợi ý. Muốn đặt thêm mã thì bấm « ＋ Thêm mã khác » ở cuối bảng.'; }
 function saveQty(){ try{ const o={}; items.forEach(i=>{ if(i.qty>0) o[i.r]=i.qty; }); localStorage.setItem('bn_qty',JSON.stringify(o)); }catch(e){} }
 function updSum(){ const has=items.filter(i=>i.qty>0); const tot=has.reduce((a,i)=>a+i.qty,0);
   document.getElementById('sum').innerHTML = has.length ? `<b>${has.length} mã · ${tot} SL</b><br>đã nhập` : 'Chưa nhập số lượng'; }
@@ -174,10 +189,11 @@ function buildInputs(){
   items.forEach(it=>{
     if(it.grp!==g){ g=it.grp; const tr=tb.insertRow(); tr.className='grp'; tr.dataset.g=1; const td=tr.insertCell(); td.colSpan=4; td.textContent=g; }
     const tr=tb.insertRow(); tr.dataset.r=it.r; tr.dataset.s=(it.code+' '+it.name).toLowerCase();
-    tr.insertCell().textContent=it.code; tr.insertCell().textContent=it.name; const p=tr.insertCell(); p.className='c'; p.textContent=it.pack;
+    tr.insertCell().textContent=it.code; const nc=tr.insertCell(); nc.textContent=it.name; if(sugg&&it.qty>0&&sugg.q[it.r]===undefined){ const m=document.createElement('span'); m.className='mt'; m.textContent='mới thêm'; nc.appendChild(m); } const p=tr.insertCell(); p.className='c'; p.textContent=it.pack;
     const td=tr.insertCell(); td.className='c'; const inp=document.createElement('input'); inp.type='number'; inp.min=0; inp.step=1; inp.value=it.qty||'';
-    inp.oninput=()=>{ it.qty=Math.max(0,Math.floor(+inp.value||0)); tr.className=it.qty>0?'has':''; if(it.pet) reroll(it); renderPV(); saveQty(); updSum(); };
-    td.appendChild(inp); if(it.qty>0) tr.className='has';
+    const gn=document.createElement('span'); gn.innerHTML=sugNote(it);
+    inp.oninput=()=>{ it.qty=Math.max(0,Math.floor(+inp.value||0)); tr.className=it.qty>0?'has':''; gn.innerHTML=sugNote(it); if(it.pet) reroll(it); renderPV(); saveQty(); updSum(); };
+    td.appendChild(inp); td.appendChild(gn); if(it.qty>0) tr.className='has';
   });
 }
 function renderPV(){
@@ -208,8 +224,8 @@ function buildChk(){ $('chk').innerHTML=cust.map((c,j)=>'<label><input type="che
 function shuffleAll(){ items.forEach(i=>{ if(i.pet) reroll(i); }); renderPV(); }
 $('bShuffle').onclick=()=>{ if(!flags.some(x=>x)){alert('Phải chọn ít nhất 1 khách');return;} shuffleAll(); };
 $('pct').onchange=shuffleAll;
-$('bReset').onclick=()=>{ items.forEach(i=>i.qty=init[i.r]||0); buildInputs(); shuffleAll(); saveQty(); updSum(); applyFilter(); };
-$('bClear').onclick=()=>{ if(!confirm('Xoá hết số lượng đã nhập?')) return; items.forEach(i=>i.qty=0); buildInputs(); shuffleAll(); saveQty(); updSum(); applyFilter(); };
+$('bReset').onclick=()=>{ sugg=null; saveSugg(); renderSug(); items.forEach(i=>i.qty=init[i.r]||0); buildInputs(); shuffleAll(); saveQty(); updSum(); applyFilter(); };
+$('bClear').onclick=()=>{ if(!confirm('Xoá hết số lượng đã nhập?')) return; sugg=null; saveSugg(); renderSug(); items.forEach(i=>i.qty=0); buildInputs(); shuffleAll(); saveQty(); updSum(); applyFilter(); };
 let outAction='zalo';
 // Đếm số đơn khác nhau trong cùng 1 ngày (cùng số lượng = cùng đơn, Lưu rồi Gửi Zalo không bị tính 2 lần)
 function bnLan(ds){
@@ -222,10 +238,14 @@ function bnLan(ds){
 }
 $('bSave').onclick=()=>{ if(!items.some(i=>i.qty>0)){ alert('Chưa nhập số lượng mã nào.'); return; } outAction='save'; $('bExport').click(); };
 $('bZalo').onclick=()=>{ if(!items.some(i=>i.qty>0)){ alert('Chưa nhập số lượng mã nào.'); return; } outAction='zalo'; $('bExport').click(); };
-function applyFilter(){ const k=$('q').value.toLowerCase().trim(), only=$('onlyHas').checked;
+let adding=false;
+function applyFilter(){ const k=$('q').value.toLowerCase().trim(), only=$('onlyHas').checked&&!adding;
+  $('bAddCode').hidden=adding||!$('onlyHas').checked; $('bAddDone').hidden=!adding; $('addHead').style.display=adding?'block':'none';
   [...$('tin').tBodies[0].rows].forEach(r=>{ if(r.dataset.g){ r.style.display=(k||only)?'none':''; return; }
     const it=items.find(i=>String(i.r)===r.dataset.r); const ok=(!k||r.dataset.s.includes(k))&&(!only||(it&&it.qty>0)); r.style.display=ok?'':'none'; }); }
-$('q').oninput=applyFilter; $('onlyHas').onchange=applyFilter;
+$('q').oninput=applyFilter; $('onlyHas').onchange=()=>{ adding=false; applyFilter(); };
+$('bAddCode').onclick=()=>{ adding=true; $('q').value=''; applyFilter(); $('q').scrollIntoView({block:'center'}); $('q').focus(); };
+$('bAddDone').onclick=()=>{ adding=false; $('q').value=''; $('onlyHas').checked=true; buildInputs(); applyFilter(); $('tin').scrollIntoView({block:'start'}); };
 $('bExport').onclick=async()=>{
   if(!flags.some(x=>x)){alert('Phải chọn ít nhất 1 khách');return;}
   const bad=items.filter(i=>i.pet&&i.qty>0&&alloc[i.r]&&alloc[i.r].reduce((a,b)=>a+b,0)!==i.qty);
@@ -243,7 +263,7 @@ $('bExport').onclick=async()=>{
     setTimeout(()=>$('msg').textContent='',8000);
   }catch(e){ alert('Lỗi khi xuất file: '+e.message); }
 };
-buildInputs(); buildChk(); shuffleAll(); updSum();
+buildInputs(); buildChk(); shuffleAll(); updSum(); renderSug(); applyFilter();
 // ---- Nhận số lượng nên đặt từ app BH offline (bản 2.9): khớp theo tên test ----
 function bnKey(n){ n=String(n||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d');
   n=n.replace(/vcheck/g,' ').replace(/\([^)]*\)/g,' ').replace(/\b\d\.\d\b/g,' ').replace(/3 lines/g,' ').replace(/[^a-z0-9]/g,'');
@@ -257,6 +277,7 @@ window.vpApplyIncoming=function(txt){
   const miss=[]; let n=0;
   list.forEach(x=>{ const k=bnKey(x.name); const it=items.find(i=>i.pet&&bnKey(i.name)===k)||items.find(i=>bnKey(i.name)===bnKey(x.full||'')&&x.full);
     if(it){ it.qty+=Math.round(+x.qty); n++; } else miss.push(x.name+' '+x.qty); });
+  sugg={note:o.note||'',q:{}}; items.forEach(i=>{ if(i.qty>0) sugg.q[i.r]=i.qty; }); saveSugg(); renderSug(); adding=false;
   buildInputs(); shuffleAll(); saveQty(); updSum(); $('onlyHas').checked=true; applyFilter();
   alert('Đã nhận từ BH offline: '+n+' mã'+(o.note?' ('+o.note+')':'')+'.'+(miss.length?'\nChưa khớp, gõ tay giúp: '+miss.join(', '):'')+'\nKiểm tra số rồi bấm Lưu / Gửi Zalo.');
 };

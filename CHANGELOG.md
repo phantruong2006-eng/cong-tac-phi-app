@@ -2,6 +2,10 @@
 
 Mỗi lần sửa app thì tăng số trong file `VERSION` (1.0 → 1.1 → 1.2 …).
 
+## 2.10
+- Đặt hàng Bionote: số gợi ý từ BH offline sửa được; dưới ô có chữ nhỏ « gợi ý N » (cam « anh sửa » khi khác). Gõ 0 = bỏ mã.
+- Nút « ＋ Thêm mã khác » cuối bảng: tìm mã, gõ số, « ✓ Xong » về danh sách đặt; mã thêm có nhãn « mới thêm ».
+
 ## 2.9
 - Đặt hàng Bionote: nhận số lượng nên đặt từ app BH offline (Báo cáo VTD › Đặt hàng › "Gửi sang app VP"). App VP tự mở trang Bionote, điền "SL đặt" theo tên test, mã nào chưa khớp thì báo để gõ tay.
 
