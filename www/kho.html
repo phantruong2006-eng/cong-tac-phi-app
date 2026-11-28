@@ -30,6 +30,8 @@
   .app .nm{font-weight:700}
   .app .st{font-size:14px;margin:2px 0 8px}
   .app .bt{display:flex;gap:8px;flex-wrap:wrap}
+  .step{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--line)}
+  .step .num{flex:none;width:30px;height:30px;border-radius:50%;background:var(--pri);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center}
   .full{width:100%;font-size:17px;padding:14px}
   input.pin{font:inherit;font-size:30px;letter-spacing:14px;text-align:center;width:100%;padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);margin:6px 0 12px}
   input.q{font:inherit;width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);margin-bottom:8px}
@@ -59,7 +61,7 @@
   <!-- Lần đầu: tạo mã PIN -->
   <div id="vSetup" class="card hide">
     <h2>🔒 Tạo mã PIN cho Kho riêng</h2>
-    <p class="help" style="margin-top:0">Mã PIN 4 số dùng để mở Kho riêng và mở các app anh khoá (khi không dùng vân tay). Vân tay là vân tay đã cài trong máy.</p>
+    <p class="help" style="margin-top:0">Mã PIN 4 số dùng để mở các app trong kho khi không dùng vân tay (vân tay là vân tay đã cài trong máy). Vào Kho riêng không cần mã này, chỉ cần mã 89.</p>
     <p style="margin:12px 0 0;font-weight:600" id="setupLbl">Gõ mã PIN mới (4 số)</p>
     <input class="pin" id="pin1" type="password" inputmode="numeric" maxlength="4" autocomplete="off">
     <p style="margin:0;font-weight:600">Gõ lại mã PIN để chắc chắn</p>
@@ -83,17 +85,19 @@
       <div style="display:flex;align-items:center;gap:8px;justify-content:space-between"><h2 style="margin:0">Khoá khi mở app</h2><span id="svcBadge" class="badge off">Chưa bật</span></div>
       <p class="help" id="svcText"></p>
       <div id="svcOff">
-        <button class="full" id="bSvc" type="button" style="margin-top:10px">Bật quyền "Hỗ trợ tiếp cận" cho VP</button>
-        <div class="help">Trong trang vừa mở:
-          <ol><li>Chọn <b>Ứng dụng đã cài đặt</b> (nếu có) → <b>VP – Khoá app</b>.</li>
-          <li>Gạt nút sang <b>Bật</b> → bấm <b>Cho phép</b>.</li>
-          <li>Quay lại VP, chữ đỏ "Chưa bật" sẽ thành xanh "Đang bật".</li></ol>
-          <p style="margin:8px 0 0"><b>Nếu nút gạt bị mờ</b> hoặc báo "Cài đặt bị hạn chế" (do VP cài từ file, không phải từ cửa hàng):</p>
-          <ol><li>Bấm nút dưới đây để mở trang thông tin của VP.</li>
-          <li>Bấm dấu <b>⋮</b> góc trên bên phải → <b>Cho phép cài đặt bị hạn chế</b> → xác nhận.</li>
-          <li>Bấm lại nút xanh phía trên và bật như các bước trên.</li></ol>
-          <button class="sec sm" id="bAppInfo" type="button" style="margin-top:8px">Mở trang thông tin của VP</button>
-        </div>
+        <p class="help" style="margin:10px 0 0">Làm lần lượt từng bước. Mỗi nút mở <b>thẳng</b> trang Cài đặt cần dùng, anh chỉ việc chọn rồi bấm nút quay lại để về VP.</p>
+        <div class="step"><div class="num">1</div><div style="flex:1">
+          <b>Bật quyền cho VP</b>
+          <p class="help" style="margin:2px 0 8px">Trang mở ra: gạt nút <b>VP – Khoá app</b> sang <b>Bật</b> → <b>Cho phép</b>. Nếu Samsung báo <b>"Ứng dụng đã bị từ chối cấp quyền"</b> thì bấm OK, quay lại VP làm bước 2.</p>
+          <button class="sm" id="bSvc" type="button">Mở trang bật quyền</button></div></div>
+        <div class="step"><div class="num">2</div><div style="flex:1">
+          <b>Cho phép cài đặt bị hạn chế</b>
+          <p class="help" style="margin:2px 0 8px">Trang mở ra là trang thông tin của VP: bấm dấu <b>⋮</b> góc trên bên phải → <b>Cho phép cài đặt bị hạn chế</b> → xác nhận. Xong quay lại làm <b>bước 1</b>.<br>Không thấy dấu ⋮ hoặc không có dòng đó → làm bước 3.</p>
+          <button class="sm" id="bAppInfo" type="button">Mở trang thông tin VP</button></div></div>
+        <div class="step"><div class="num">3</div><div style="flex:1">
+          <b>Tắt tạm Trình chặn tự động</b>
+          <p class="help" style="margin:2px 0 8px" id="abText">Trang mở ra: gạt <b>Trình chặn tự động</b> sang <b>Tắt</b>. Xong quay lại làm <b>bước 2</b> rồi <b>bước 1</b>.<br>Khi chữ đỏ thành xanh "Đang bật", anh có thể bật lại Trình chặn tự động. Nếu bật lại mà VP về "Chưa bật" thì để nó tắt.</p>
+          <button class="sm" id="bAutoBlock" type="button">Mở Trình chặn tự động</button></div></div>
       </div>
     </div>
 
@@ -123,7 +127,7 @@
           <p style="margin:6px 0">• <b>Giấu biểu tượng</b> do Samsung làm: VP chỉ mở sẵn trang "Ẩn ứng dụng" để anh tích chọn. VP không tự biết app đã giấu hay chưa, nên anh bấm "Đã giấu xong" để ghi lại.</p>
           <p style="margin:6px 0">• Ô tìm kiếm của Samsung vẫn tìm thấy app đã giấu (Samsung cố ý làm vậy). Bật <b>Chặn tìm kiếm</b> để VP xoá chữ khi gõ tên app; nếu vẫn lọt thì bấm vào app cũng bị khoá.</p>
           <p style="margin:6px 0">• Sai mã PIN 5 lần liền thì phải chờ 30 giây.</p>
-          <p style="margin:6px 0">• Thoát khỏi Kho riêng (về màn hình chính, mở app khác, chuyển sang công cụ khác) là kho tự khoá lại.</p>
+          <p style="margin:6px 0">• Vào Kho riêng: bấm 5 lần vào chữ "VP · bản …" rồi gõ 89, không cần vân tay hay mã PIN.</p>
         </div>
       </details>
     </div>
@@ -177,9 +181,10 @@ const api={
   hideApps:async()=>NATIVE?(await VP.openHideApps()).how:'hide',
   svc:async()=>NATIVE?VP.openAccessibility():(DEMO.serviceOn=true),
   appInfo:async()=>NATIVE?VP.openAppInfo():alert('Bản xem thử: mở trang thông tin của VP'),
+  autoBlock:async()=>NATIVE?(await VP.openAutoBlocker()).how:'security',
 };
 
-let st={hasPin:false,serviceOn:false,locked:[]}, apps=null, unlocked=false, busy=false, away=0, changing=false;
+let st={hasPin:false,serviceOn:false,locked:[]}, apps=null, unlocked=true, busy=false, away=0, changing=false;
 const HKEY='vp_kho_hidden';
 const hidden=()=>{try{return JSON.parse(localStorage.getItem(HKEY)||'{}')}catch(e){return {}}};
 const setHidden=(pkg,v)=>{const h=hidden(); if(v)h[pkg]=1; else delete h[pkg]; try{localStorage.setItem(HKEY,JSON.stringify(h))}catch(e){}};
@@ -192,8 +197,7 @@ const icon=a=>a.icon?`<img src="data:image/png;base64,${a.icon}" alt="">`:`<div 
 
 async function render(){
   st=await api.status();
-  if(!st.hasPin){ unlocked=false; openSetup(false); return; }
-  if(!unlocked){ show('vLocked'); return; }
+  if(!st.hasPin){ openSetup(false); return; }
   show('vMain');
   // Khoá khi mở app
   $('svcBadge').className='badge '+(st.serviceOn?'on':'off');
@@ -254,12 +258,8 @@ async function unlock(){
 }
 $('bUnlock').onclick=unlock;
 
-// Thoát ra là tự khoá lại (trừ lúc đang ở trang cài đặt VP vừa mở, tối đa 3 phút)
-document.addEventListener('visibilitychange',()=>{
-  if(document.hidden){ if(!busy && !(away && Date.now()<away)){ unlocked=false; } }
-  else{ const back=away; away=0; if(!unlocked && st.hasPin && !changing){ show('vLocked'); if(!busy) unlock(); } else if(back) render(); }
-});
-window.addEventListener('pagehide',()=>{ unlocked=false; });
+// Không khoá kho nữa (từ 2.15): vào bằng mã 89 là đủ. Quay lại VP thì cập nhật trạng thái.
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden){ away=0; if(!changing) render(); } });
 const goSettings=()=>{ away=Date.now()+180000; };
 
 $('bDecoy').onclick=async()=>{ await api.setDecoy($('decoy').value.trim()); render(); alert($('decoy').value.trim()?'Đã lưu: gõ trúng sẽ đổi thành "'+$('decoy').value.trim()+'".':'Đã lưu: gõ trúng sẽ xoá chữ.'); };
@@ -269,6 +269,8 @@ $('sbOn').onchange=async()=>{ const on=$('sbOn').checked; if(NATIVE) await VP.se
 // ---- Quyền Hỗ trợ tiếp cận ----
 $('bSvc').onclick=()=>{ goSettings(); api.svc(); if(!NATIVE) render(); };
 $('bAppInfo').onclick=()=>{ goSettings(); api.appInfo(); };
+$('bAutoBlock').onclick=async()=>{ goSettings(); const how=await api.autoBlock();
+  if(how!=='direct') $('abText').innerHTML='VP mở được trang <b>Bảo mật và quyền riêng tư</b>: kéo xuống chọn <b>Trình chặn tự động</b> → gạt sang <b>Tắt</b>. Xong quay lại làm <b>bước 2</b> rồi <b>bước 1</b>.<br>Khi chữ đỏ thành xanh "Đang bật", anh có thể bật lại Trình chặn tự động. Nếu bật lại mà VP về "Chưa bật" thì để nó tắt.'; };
 
 // ---- Danh sách app trong kho ----
 $('list').onclick=async e=>{
@@ -310,7 +312,7 @@ $('pickList').onchange=e=>{ const c=e.target; if(c.dataset.pkg){ c.checked?pickS
 $('bPickCancel').onclick=()=>$('mPick').classList.add('hide');
 $('bPickOk').onclick=async()=>{ await api.setLocked([...pickSel]); $('mPick').classList.add('hide'); render(); };
 
-render().then(()=>{ if(st.hasPin && !unlocked) unlock(); });
+render();
 </script>
 <script>
 document.getElementById('vpswBtn').onclick=e=>{e.stopPropagation();const m=document.getElementById('vpswMenu');m.hidden=!m.hidden;};

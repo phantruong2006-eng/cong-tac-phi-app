@@ -362,4 +362,26 @@ public class VpNativePlugin extends Plugin {
         r.put("ok", tryStart(i));
         call.resolve(r);
     }
+
+    // Mở trang "Trình chặn tự động" (Auto Blocker) của Samsung; không được thì mở Bảo mật và quyền riêng tư
+    @PluginMethod
+    public void openAutoBlocker(PluginCall call) {
+        JSObject r = new JSObject();
+        String S = "com.android.settings";
+        List<String> cands = new ArrayList<>();
+        try {
+            PackageInfo pi = getContext().getPackageManager().getPackageInfo(S, PackageManager.GET_ACTIVITIES);
+            if (pi.activities != null) for (ActivityInfo ai : pi.activities) {
+                if (!ai.exported) continue;
+                String n = ai.name.toLowerCase();
+                if (n.contains("autoblock") || n.contains("auto_block")) cands.add(ai.name);
+            }
+        } catch (Exception ignored) {}
+        for (String n : cands) {
+            if (tryStart(new Intent().setComponent(new ComponentName(S, n)))) { r.put("how", "direct"); call.resolve(r); return; }
+        }
+        if (tryStart(new Intent(Settings.ACTION_SECURITY_SETTINGS))) { r.put("how", "security"); call.resolve(r); return; }
+        r.put("how", tryStart(new Intent(Settings.ACTION_SETTINGS)) ? "settings" : "none");
+        call.resolve(r);
+    }
 }

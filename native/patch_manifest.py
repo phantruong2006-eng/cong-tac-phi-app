@@ -7,6 +7,7 @@ queries = """
         <intent><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LAUNCHER" /></intent>
         <intent><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.HOME" /></intent>
         <package android:name="com.sec.android.app.launcher" />
+        <package android:name="com.android.settings" />
     </queries>
 """
 app = """

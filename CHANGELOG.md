@@ -2,6 +2,13 @@
 
 Mỗi lần sửa app thì tăng số trong file `VERSION` (1.0 → 1.1 → 1.2 …).
 
+## 2.15
+- Vào Kho riêng chỉ cần bấm 5 lần + gõ mã 89, **không hỏi vân tay / mã PIN nữa**. App trong kho khi mở vẫn cần vân tay / mã PIN.
+- Bật quyền "Hỗ trợ tiếp cận" thành **3 bước có nút mở thẳng trang Cài đặt**:
+  1. Mở trang bật quyền "VP – Khoá app" (giữ nguyên tên).
+  2. Mở trang thông tin VP → ⋮ → Cho phép cài đặt bị hạn chế.
+  3. Mở Trình chặn tự động (Samsung) để tắt tạm; máy không cho mở thẳng thì mở trang Bảo mật và quyền riêng tư.
+
 ## 2.14
 - Chặn tìm kiếm tối ưu:
   - Mặc định chặn từ **2 chữ** (đầu tên hoặc đầu một từ trong tên, vd ACB ONE: "ac", "on"); tuỳ chọn "Chặn ngay từ chữ đầu tiên".
