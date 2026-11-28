@@ -2,6 +2,13 @@
 
 Mỗi lần sửa app thì tăng số trong file `VERSION` (1.0 → 1.1 → 1.2 …).
 
+## 2.14
+- Chặn tìm kiếm tối ưu:
+  - Mặc định chặn từ **2 chữ** (đầu tên hoặc đầu một từ trong tên, vd ACB ONE: "ac", "on"); tuỳ chọn "Chặn ngay từ chữ đầu tiên".
+  - Gõ trúng thì **đổi thành từ khác** (mặc định "Máy tính", sửa được; để trống = xoá chữ) thay vì xoá trắng.
+  - **Từ khoá chặn thêm** cho từng app (vd "ngân hàng", "chứng khoán"), có dấu hay không đều được.
+  - Dưới mỗi app ghi rõ gõ chữ gì sẽ bị đổi.
+
 ## 2.13
 - Kho riêng: thêm **Chặn tìm kiếm** (Lớp 2, có nút bật/tắt, mặc định bật). Gõ chữ đầu tên app trong kho vào ô tìm kiếm
   của Samsung (vd app "ACB ONE": "a", "ac", "acb", "one") → VP xoá chữ ngay, không ra kết quả, không lưu lịch sử tìm kiếm.

@@ -56,8 +56,10 @@ public class VpLockService extends AccessibilityService {
     // Gõ chữ đầu tên app trong kho (vd "z", "za", "zalo") vào ô tìm kiếm của Samsung → VP xoá chữ ngay.
     private static final Set<String> SEARCH = new HashSet<>(java.util.Arrays.asList(
             "com.sec.android.app.launcher", "com.samsung.android.app.galaxyfinder", "com.samsung.android.smartsuggestions"));
-    private Set<String> namesFor = null;
-    private final List<String[]> names = new ArrayList<>();
+    private long namesVer = -1;
+    private int minChars = 2;
+    private final List<String[]> names = new ArrayList<>();   // các từ trong tên app
+    private final List<String> extra = new ArrayList<>();     // từ khoá anh thêm (đã bỏ dấu, bỏ cách)
 
     static String norm(CharSequence cs) {
         String s = Normalizer.normalize(cs.toString(), Normalizer.Form.NFD).replaceAll("\\p{M}", "");
@@ -66,25 +68,35 @@ public class VpLockService extends AccessibilityService {
     }
 
     private void loadNames() {
-        Set<String> locked = VpLockStore.locked(this);
-        if (locked.equals(namesFor)) return;
+        long v = VpLockStore.ver(this);
+        if (v == namesVer) return;
         names.clear();
+        extra.clear();
+        minChars = VpLockStore.minChars(this);
         PackageManager pm = getPackageManager();
-        for (String p : locked) {
+        for (String p : VpLockStore.locked(this)) {
             try { names.add(norm(pm.getApplicationLabel(pm.getApplicationInfo(p, 0))).split(" ")); }
             catch (Exception ignored) {}
+            for (String k : VpLockStore.keywords(this, p).split(",")) {
+                String n = norm(k).replace(" ", "");
+                if (n.length() >= 2) extra.add(n);
+            }
         }
-        namesFor = locked;
+        namesVer = v;
     }
 
     private boolean blocked(String q) {
-        if (q.isEmpty()) return false;
         String qs = q.replace(" ", "");
+        if (qs.isEmpty() || qs.length() < minChars) return false;
         for (String[] w : names) {
             String full = String.join("", w);
-            if (full.startsWith(qs)) return true;
-            if (qs.length() >= 3 && full.contains(qs)) return true;
-            if (q.length() >= 2) for (String x : w) if (!x.isEmpty() && x.startsWith(q)) return true;
+            if (full.startsWith(qs)) return true;                                  // đầu tên app
+            if (qs.length() >= 2) for (String x : w) if (!x.isEmpty() && x.startsWith(q)) return true; // đầu một từ
+            if (qs.length() >= 3 && full.contains(qs)) return true;                // nằm trong tên
+        }
+        for (String k : extra) {
+            if (qs.length() >= 2 && k.startsWith(qs)) return true;                 // đầu từ khoá thêm
+            if (qs.contains(k)) return true;                                       // gõ đủ từ khoá
         }
         return false;
     }
@@ -95,12 +107,21 @@ public class VpLockService extends AccessibilityService {
         for (CharSequence t : e.getText()) if (t != null) sb.append(t);
         if (sb.length() == 0) return;
         loadNames();
-        if (names.isEmpty() || !blocked(norm(sb))) return;
+        if ((names.isEmpty() && extra.isEmpty()) || !blocked(norm(sb))) return;
         AccessibilityNodeInfo n = e.getSource();
         if (n == null) return;
+        // Đổi sang từ khác (mặc định "Máy tính") để ô tìm kiếm ra app khác; từ đó cũng trúng thì xoá chữ
+        String d = VpLockStore.decoy(this);
+        if (d.isEmpty() || blocked(norm(d))) d = "";
         Bundle b = new Bundle();
-        b.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, "");
+        b.putCharSequence(AccessibilityNodeInfo.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, d);
         n.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, b);
+        if (!d.isEmpty()) {
+            Bundle sel = new Bundle();
+            sel.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_SELECTION_START_INT, d.length());
+            sel.putInt(AccessibilityNodeInfo.ACTION_ARGUMENT_SELECTION_END_INT, d.length());
+            n.performAction(AccessibilityNodeInfo.ACTION_SET_SELECTION, sel);
+        }
     }
 
     @Override

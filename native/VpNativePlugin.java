@@ -189,6 +189,11 @@ public class VpNativePlugin extends Plugin {
         r.put("hasPin", VpLockStore.hasPin(getContext()));
         r.put("serviceOn", lockServiceOn());
         r.put("searchBlock", VpLockStore.searchBlock(getContext()));
+        r.put("minChars", VpLockStore.minChars(getContext()));
+        r.put("decoy", VpLockStore.decoy(getContext()));
+        JSObject kw = new JSObject();
+        for (String p : VpLockStore.locked(getContext())) kw.put(p, VpLockStore.keywords(getContext(), p));
+        r.put("keywords", kw);
         JSArray a = new JSArray();
         for (String p : VpLockStore.locked(getContext())) a.put(p);
         r.put("locked", a);
@@ -206,6 +211,26 @@ public class VpNativePlugin extends Plugin {
     @PluginMethod
     public void setSearchBlock(PluginCall call) {
         VpLockStore.setSearchBlock(getContext(), call.getBoolean("on", true));
+        call.resolve();
+    }
+
+    @PluginMethod
+    public void setDecoy(PluginCall call) {
+        VpLockStore.setDecoy(getContext(), call.getString("d", ""));
+        call.resolve();
+    }
+
+    @PluginMethod
+    public void setMinChars(PluginCall call) {
+        VpLockStore.setMinChars(getContext(), call.getInt("n", 2) == 1 ? 1 : 2);
+        call.resolve();
+    }
+
+    @PluginMethod
+    public void setKeywords(PluginCall call) {
+        String p = call.getString("pkg");
+        if (p == null) { call.reject("Thiếu app"); return; }
+        VpLockStore.setKeywords(getContext(), p, call.getString("kw", ""));
         call.resolve();
     }
 

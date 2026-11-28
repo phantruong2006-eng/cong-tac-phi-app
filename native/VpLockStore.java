@@ -70,11 +70,22 @@ final class VpLockStore {
     static boolean searchBlock(Context c) { return p(c).getBoolean("searchBlock", true); }
     static void setSearchBlock(Context c, boolean on) { p(c).edit().putBoolean("searchBlock", on).apply(); }
 
+    /** Số chữ tối thiểu mới chặn (2 = mặc định, 1 = chặn ngay từ chữ đầu). */
+    static int minChars(Context c) { return p(c).getInt("minChars", 2); }
+    static void setMinChars(Context c, int n) { p(c).edit().putInt("minChars", n).putLong("ver", System.nanoTime()).apply(); }
+    /** Từ khoá chặn thêm cho từng app, cách nhau bằng dấu phẩy. */
+    static String keywords(Context c, String pkg) { return p(c).getString("kw:" + pkg, ""); }
+    static void setKeywords(Context c, String pkg, String kw) { p(c).edit().putString("kw:" + pkg, kw).putLong("ver", System.nanoTime()).apply(); }
+    /** Từ thay thế khi gõ trúng (rỗng = xoá chữ). */
+    static String decoy(Context c) { return p(c).getString("decoy", "Máy tính"); }
+    static void setDecoy(Context c, String d) { p(c).edit().putString("decoy", d == null ? "" : d.trim()).apply(); }
+    static long ver(Context c) { return p(c).getLong("ver", 0); }
+
     static Set<String> locked(Context c) {
         return new HashSet<>(p(c).getStringSet("locked", new HashSet<>()));
     }
 
     static void setLocked(Context c, Set<String> pkgs) {
-        p(c).edit().putStringSet("locked", new HashSet<>(pkgs)).apply();
+        p(c).edit().putStringSet("locked", new HashSet<>(pkgs)).putLong("ver", System.nanoTime()).apply();
     }
 }
