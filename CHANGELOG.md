@@ -2,6 +2,11 @@
 
 Mỗi lần sửa app thì tăng số trong file `VERSION` (1.0 → 1.1 → 1.2 …).
 
+## 2.12
+- Giấu lối vào Kho riêng: bỏ "🔒 Kho riêng" khỏi nút đổi công cụ. Muốn vào: bấm 5 lần liền vào chữ "VP · bản …"
+  ở góc trên bên trái → hiện ô nhập mã → gõ 89 → OK (sau đó vẫn cần vân tay / mã PIN). Gõ sai thì ô tự đóng, không báo gì.
+- Mở app VP không bao giờ tự vào thẳng Kho riêng (luôn vào Công tác phí hoặc Bionote).
+
 ## 2.11
 - Công cụ thứ 3 **🔒 Kho riêng** (nút đổi công cụ góc phải): giấu + khoá app.
   - Lần đầu tạo mã PIN 4 số. Mở kho bằng vân tay hoặc mã PIN; thoát ra là kho tự khoá lại.

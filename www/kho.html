@@ -54,7 +54,7 @@
 </head>
 <body>
 <div class="wrap">
-  <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><h1>VP <span class="mut" style="font-size:13px;font-weight:400">· bản __APP_VERSION__</span></h1><div class="vpsw"><button type="button" id="vpswBtn">Kho riêng ▾</button><div class="m" id="vpswMenu" hidden><a href="ctp.html">🗓 Công tác phí</a><a href="bionote.html">🧪 Đặt hàng Bionote</a><a href="kho.html" class="on">🔒 Kho riêng</a></div></div></div>
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><h1>VP <span class="mut" style="font-size:13px;font-weight:400">· bản __APP_VERSION__</span></h1><div class="vpsw"><button type="button" id="vpswBtn">Kho riêng ▾</button><div class="m" id="vpswMenu" hidden><a href="ctp.html">🗓 Công tác phí</a><a href="bionote.html">🧪 Đặt hàng Bionote</a></div></div></div>
 
   <!-- Lần đầu: tạo mã PIN -->
   <div id="vSetup" class="card hide">
@@ -269,7 +269,6 @@ $('bPickOk').onclick=async()=>{ await api.setLocked([...pickSel]); $('mPick').cl
 render().then(()=>{ if(st.hasPin && !unlocked) unlock(); });
 </script>
 <script>
-try{localStorage.setItem('vp_tool',location.pathname.split('/').pop()||'ctp.html')}catch(e){}
 document.getElementById('vpswBtn').onclick=e=>{e.stopPropagation();const m=document.getElementById('vpswMenu');m.hidden=!m.hidden;};
 document.addEventListener('click',()=>{document.getElementById('vpswMenu').hidden=true;});
 </script>

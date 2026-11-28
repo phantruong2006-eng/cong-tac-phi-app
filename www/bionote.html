@@ -59,7 +59,7 @@ body{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
   .vpsw .m a+a{border-top:1px solid #eef1f6}
   .vpsw .m a.on{background:#eef4ff;color:#1f6feb}
 </style></head><body>
-<header><div style="display:flex;align-items:center;gap:10px;width:100%"><h1 style="flex:1;min-width:0">VP <span style="font-weight:normal;font-size:12px;opacity:.75">· bản __APP_VERSION__</span></h1><div class="vpsw"><button type="button" id="vpswBtn">Đặt hàng Bionote ▾</button><div class="m" id="vpswMenu" hidden><a href="ctp.html">🗓 Công tác phí</a><a href="bionote.html" class="on">🧪 Đặt hàng Bionote</a><a href="kho.html">🔒 Kho riêng</a></div></div></div><span id="msg"></span>
+<header><div style="display:flex;align-items:center;gap:10px;width:100%"><h1 style="flex:1;min-width:0">VP <span style="font-weight:normal;font-size:12px;opacity:.75">· bản __APP_VERSION__</span></h1><div class="vpsw"><button type="button" id="vpswBtn">Đặt hàng Bionote ▾</button><div class="m" id="vpswMenu" hidden><a href="ctp.html">🗓 Công tác phí</a><a href="bionote.html" class="on">🧪 Đặt hàng Bionote</a></div></div></div><span id="msg"></span>
 <button id="bClear">Xoá hết số</button><button id="bReset">Số đơn mẫu</button><button id="bShuffle">🎲 Chia lại</button><button id="bHist" onclick="vpHistory()">🕘 Lịch sử</button><button id="bExport" style="display:none">⬇ Xuất</button></header>
 <main>
 <div class="card"><h2>1. Nhập số lượng đặt</h2>
@@ -286,4 +286,5 @@ try{localStorage.setItem('vp_tool',location.pathname.split('/').pop()||'ctp.html
 document.getElementById('vpswBtn').onclick=e=>{e.stopPropagation();const m=document.getElementById('vpswMenu');m.hidden=!m.hidden;};
 document.addEventListener('click',()=>{document.getElementById('vpswMenu').hidden=true;});
 </script>
+<script src="vp-secret.js"></script>
 </body></html>

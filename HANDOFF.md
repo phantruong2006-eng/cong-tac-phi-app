@@ -22,6 +22,7 @@
 - www/kho.html + native/LockActivity.java, VaultLockActivity.java, VpLockService.java (AccessibilityService), VpLockStore.java (PIN băm SHA-256 + danh sách app khoá, SharedPreferences "vp_lock").
 - Manifest được vá khi build bằng native/patch_manifest.py (queries, 2 activity, service); res: native/vp_lock_service.xml, native/vp_lock_strings.xml.
 - Không đọc được app nào đã bị Samsung giấu → anh tự bấm "Đã giấu xong" (lưu localStorage vp_kho_hidden).
+- Từ 2.12: Kho riêng không có trong menu; lối vào ẩn = bấm 5 lần vào tiêu đề "VP · bản …" → gõ 89 (www/vp-secret.js).
 - Chưa làm Lớp 2 (chặn từ khoá ô tìm kiếm Samsung) – để bản sau nếu anh cần.
 
 ## Kỹ thuật (để làm tiếp)
