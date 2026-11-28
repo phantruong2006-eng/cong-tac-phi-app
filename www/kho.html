@@ -120,6 +120,10 @@
     <div class="card">
       <h2>Cài đặt</h2>
       <button class="sec sm" id="bChangePin" type="button">Đổi mã PIN</button>
+      <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--line)">
+        <button class="del sm" id="bWipe" type="button">🗑 Gỡ hết: app trong kho + VP</button>
+        <p class="help" style="margin-top:6px">Gỡ lần lượt <b>chỉ các app trong kho</b>, cuối cùng gỡ luôn VP. Mỗi app máy đều hỏi, anh bấm <b>OK</b> mới gỡ, bấm <b>Huỷ</b> thì giữ lại. Các app khác trong máy không bị đụng tới. Gỡ rồi thì cài lại phải đăng nhập, xác thực lại từ đầu (tài khoản, tiền, cổ phiếu vẫn còn bên ngân hàng / chứng khoán).</p>
+      </div>
       <details style="margin-top:12px"><summary style="cursor:pointer;color:var(--pri);font-weight:600">Kho riêng hoạt động thế nào?</summary>
         <div class="help">
           <p style="margin:6px 0">• <b>Khoá</b>: khi app trong kho hiện lên (mở từ biểu tượng, ô tìm kiếm, thông báo…), VP che lại bằng màn hình vân tay / mã PIN. Bấm "Huỷ" thì về màn hình chính.</p>
@@ -180,10 +184,13 @@ const api={
   launch:async pkg=>NATIVE?VP.launchApp({pkg}):alert('Bản xem thử: sẽ mở '+pkg),
   hideApps:async()=>NATIVE?(await VP.openHideApps()).how:'hide',
   svc:async()=>NATIVE?VP.openAccessibility():(DEMO.serviceOn=true),
+  uninstall:async pkg=>NATIVE?(await VP.uninstallApp({pkg})).gone:confirm('Bản xem thử: gỡ '+pkg+'?'),
+  uninstallSelf:async()=>NATIVE?VP.uninstallSelf():alert('Bản xem thử: gỡ VP'),
   appInfo:async()=>NATIVE?VP.openAppInfo():alert('Bản xem thử: mở trang thông tin của VP'),
   autoBlock:async()=>NATIVE?(await VP.openAutoBlocker()).how:'security',
 };
 
+let wiping=false;
 let st={hasPin:false,serviceOn:false,locked:[]}, apps=null, unlocked=true, busy=false, away=0, changing=false;
 const HKEY='vp_kho_hidden';
 const hidden=()=>{try{return JSON.parse(localStorage.getItem(HKEY)||'{}')}catch(e){return {}}};
@@ -248,6 +255,24 @@ $('bSetPin').onclick=async()=>{
   if(!$('vMain').classList.contains('hide')) alert('Đã lưu mã PIN mới.');
 };
 $('bCancelPin').onclick=()=>{ changing=false; render(); };
+$('bWipe').onclick=async()=>{
+  const items=st.locked.map(appOf);
+  const names=items.map(a=>a.label).join(', ');
+  if(!confirm(items.length
+    ?`Gỡ khỏi máy ${items.length} app trong kho: ${names}.\nSau đó gỡ luôn VP.\n\nGỡ rồi cài lại phải đăng nhập, xác thực lại từ đầu. Tiếp tục?`
+    :'Kho không có app nào. Gỡ luôn VP?')) return;
+  wiping=true; const left=[];
+  try{
+    for(const a of items){
+      let gone=false; try{ gone=await api.uninstall(a.pkg); }catch(e){}
+      if(gone){ setHidden(a.pkg,false); } else left.push(a);
+    }
+    await api.setLocked(left.map(a=>a.pkg));
+  } finally{ wiping=false; }
+  if(left.length && !confirm(`Còn ${left.length} app chưa gỡ (anh đã bấm Huỷ): ${left.map(a=>a.label).join(', ')}.\nVẫn gỡ VP?`)){ render(); return; }
+  if(!left.length && items.length && !confirm('Đã gỡ hết app trong kho. Gỡ luôn VP?')){ render(); return; }
+  await api.uninstallSelf(); render();
+};
 $('bChangePin').onclick=async()=>{ busy=true; const ok=await api.verify(); busy=false; if(ok) openSetup(true); };
 
 // ---- Mở khoá kho ----
@@ -259,7 +284,7 @@ async function unlock(){
 $('bUnlock').onclick=unlock;
 
 // Không khoá kho nữa (từ 2.15): vào bằng mã 89 là đủ. Quay lại VP thì cập nhật trạng thái.
-document.addEventListener('visibilitychange',()=>{ if(!document.hidden){ away=0; if(!changing) render(); } });
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden){ away=0; if(!changing && !wiping) render(); } });
 const goSettings=()=>{ away=Date.now()+180000; };
 
 $('bDecoy').onclick=async()=>{ await api.setDecoy($('decoy').value.trim()); render(); alert($('decoy').value.trim()?'Đã lưu: gõ trúng sẽ đổi thành "'+$('decoy').value.trim()+'".':'Đã lưu: gõ trúng sẽ xoá chữ.'); };

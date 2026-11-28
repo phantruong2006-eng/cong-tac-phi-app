@@ -2,6 +2,11 @@
 
 Mỗi lần sửa app thì tăng số trong file `VERSION` (1.0 → 1.1 → 1.2 …).
 
+## 2.16
+- Kho riêng → Cài đặt: nút **🗑 Gỡ hết: app trong kho + VP**. Gỡ lần lượt chỉ các app trong kho (máy hỏi từng app, OK mới gỡ),
+  cuối cùng hỏi "Gỡ luôn VP?". App nào bấm Huỷ thì giữ lại trong kho. Thêm quyền REQUEST_DELETE_PACKAGES.
+- Ghi chú: Android không cho tự gỡ app khác khi VP bị gỡ, nên phải dùng nút này thay vì gỡ VP trực tiếp.
+
 ## 2.15
 - Vào Kho riêng chỉ cần bấm 5 lần + gõ mã 89, **không hỏi vân tay / mã PIN nữa**. App trong kho khi mở vẫn cần vân tay / mã PIN.
 - Bật quyền "Hỗ trợ tiếp cận" thành **3 bước có nút mở thẳng trang Cài đặt**:

@@ -384,4 +384,48 @@ public class VpNativePlugin extends Plugin {
         r.put("how", tryStart(new Intent(Settings.ACTION_SETTINGS)) ? "settings" : "none");
         call.resolve(r);
     }
+
+    // Gỡ 1 app trong kho: máy hiện hộp hỏi, người dùng bấm OK mới gỡ. Trả về gone=true nếu app đã bị gỡ
+    @PluginMethod
+    public void uninstallApp(PluginCall call) {
+        String pkg = call.getString("pkg", "");
+        if (pkg.isEmpty() || !isInstalled(pkg)) { JSObject r = new JSObject(); r.put("gone", true); call.resolve(r); return; }
+        Intent i = new Intent(Intent.ACTION_UNINSTALL_PACKAGE, Uri.parse("package:" + pkg));
+        i.putExtra(Intent.EXTRA_RETURN_RESULT, true);
+        try { startActivityForResult(call, i, "uninstallDone"); }
+        catch (Exception e) {
+            try { getActivity().startActivity(new Intent(Intent.ACTION_DELETE, Uri.parse("package:" + pkg))); } catch (Exception ignored) {}
+            JSObject r = new JSObject(); r.put("gone", false); r.put("fallback", true); call.resolve(r);
+        }
+    }
+
+    @ActivityCallback
+    private void uninstallDone(PluginCall call, ActivityResult result) {
+        if (call == null) return;
+        JSObject r = new JSObject();
+        r.put("gone", !isInstalled(call.getString("pkg", "")));
+        call.resolve(r);
+    }
+
+    @PluginMethod
+    public void isAppInstalled(PluginCall call) {
+        JSObject r = new JSObject();
+        r.put("installed", isInstalled(call.getString("pkg", "")));
+        call.resolve(r);
+    }
+
+    // Gỡ chính VP (máy hỏi xác nhận)
+    @PluginMethod
+    public void uninstallSelf(PluginCall call) {
+        JSObject r = new JSObject();
+        try { getActivity().startActivity(new Intent(Intent.ACTION_DELETE, Uri.parse("package:" + getContext().getPackageName()))); r.put("ok", true); }
+        catch (Exception e) { r.put("ok", false); }
+        call.resolve(r);
+    }
+
+    private boolean isInstalled(String pkg) {
+        if (pkg == null || pkg.isEmpty()) return false;
+        try { getContext().getPackageManager().getPackageInfo(pkg, 0); return true; }
+        catch (Exception e) { return false; }
+    }
 }

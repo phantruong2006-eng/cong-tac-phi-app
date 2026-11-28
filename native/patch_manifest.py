@@ -3,6 +3,7 @@ import sys
 p = sys.argv[1]
 s = open(p, encoding="utf-8").read()
 queries = """
+    <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
     <queries>
         <intent><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LAUNCHER" /></intent>
         <intent><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.HOME" /></intent>
