@@ -18,6 +18,12 @@
 - Gõ "SL đặt" → tự chia ngẫu nhiên cho khách (mặc định ~50% khách/mã, tổng luôn đúng), xuất Excel từ mẫu gốc (sheet "MOQ 2025" + "Trang_tính1"), tên file ĐỀ_XUẤT_ĐẶT_HÀNG_BIONOTE_dd_mm_yyyy.xlsx.
 - Có: Xoá hết số, Số đơn mẫu, 🎲 Chia lại, Chỉ hiện mã đã nhập, tự nhớ số đã nhập, thanh dưới cùng "X mã · Y SL" + nút Lưu / Gửi Zalo. Trên điện thoại ẩn cột Mã ERP.
 
+## Tool 3 – Kho riêng (từ 2.11)
+- www/kho.html + native/LockActivity.java, VaultLockActivity.java, VpLockService.java (AccessibilityService), VpLockStore.java (PIN băm SHA-256 + danh sách app khoá, SharedPreferences "vp_lock").
+- Manifest được vá khi build bằng native/patch_manifest.py (queries, 2 activity, service); res: native/vp_lock_service.xml, native/vp_lock_strings.xml.
+- Không đọc được app nào đã bị Samsung giấu → anh tự bấm "Đã giấu xong" (lưu localStorage vp_kho_hidden).
+- Chưa làm Lớp 2 (chặn từ khoá ô tìm kiếm Samsung) – để bản sau nếu anh cần.
+
 ## Kỹ thuật (để làm tiếp)
 - Code: GitHub **phantruong2006-eng/cong-tac-phi-app** (đang Public – nên chuyển Private).
 - Cấu trúc: www/ctp.html, www/bionote.html, www/index.html (chuyển vào tool lần trước), www/vp-out.js (Lưu/Zalo), www/holidays.js (lịch lễ), www/template.xlsx; native/ (mã Android: VpNativePlugin.java – lưu MediaStore Download/VP và mở Zalo com.zing.zalo; MainActivity.java; file_paths.xml); icons/ (biểu tượng); keystore/ctp-debug.keystore (mã khóa cố định); VERSION; CHANGELOG.md.

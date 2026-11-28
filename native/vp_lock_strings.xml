@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="vp_lock_label">VP – Khoá app</string>
+    <string name="vp_lock_desc">VP dùng quyền này để biết khi nào anh mở một app trong Kho riêng (ví dụ Zalo) và hiện màn hình vân tay / mã PIN che lại. VP không đọc nội dung tin nhắn hay màn hình của app nào.</string>
+</resources>

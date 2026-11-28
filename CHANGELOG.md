@@ -2,6 +2,15 @@
 
 Mỗi lần sửa app thì tăng số trong file `VERSION` (1.0 → 1.1 → 1.2 …).
 
+## 2.11
+- Công cụ thứ 3 **🔒 Kho riêng** (nút đổi công cụ góc phải): giấu + khoá app.
+  - Lần đầu tạo mã PIN 4 số. Mở kho bằng vân tay hoặc mã PIN; thoát ra là kho tự khoá lại.
+  - Thêm app vào kho (tìm theo tên). Mỗi app có nút Mở (vào thẳng), Giấu biểu tượng, Bỏ khỏi kho.
+  - Giấu biểu tượng: VP mở trang "Ẩn ứng dụng" của Samsung để tích chọn, rồi anh bấm "Đã giấu xong".
+  - Khoá khi mở app (cần bật quyền "Hỗ trợ tiếp cận" cho VP một lần): mở app trong kho bằng bất cứ cách nào
+    cũng hiện màn hình vân tay / mã PIN; Huỷ thì về màn hình chính. Về màn hình chính hoặc tắt màn hình là khoá lại.
+  - Sai mã PIN 5 lần phải chờ 30 giây. Chưa làm Lớp 2 (chặn từ khoá khi tìm kiếm).
+
 ## 2.10
 - Đặt hàng Bionote: số gợi ý từ BH offline sửa được; dưới ô có chữ nhỏ « gợi ý N » (cam « anh sửa » khi khác). Gõ 0 = bỏ mã.
 - Nút « ＋ Thêm mã khác » cuối bảng: tìm mã, gõ số, « ✓ Xong » về danh sách đặt; mã thêm có nhãn « mới thêm ».

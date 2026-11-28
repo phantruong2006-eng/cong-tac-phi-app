@@ -43,9 +43,12 @@ jobs:
         run: |
           pkg=android/app/src/main/java/vn/truong/congtacphi
           ls $pkg
-          cp native/MainActivity.java native/VpNativePlugin.java $pkg/
+          cp native/*.java $pkg/
           mkdir -p android/app/src/main/res/xml
           cp native/file_paths.xml android/app/src/main/res/xml/file_paths.xml
+          cp native/vp_lock_service.xml android/app/src/main/res/xml/vp_lock_service.xml
+          cp native/vp_lock_strings.xml android/app/src/main/res/values/vp_lock_strings.xml
+          python3 native/patch_manifest.py android/app/src/main/AndroidManifest.xml
           grep -n "fileprovider" android/app/src/main/AndroidManifest.xml
 
       - name: Gan bieu tuong app (to giay trang)

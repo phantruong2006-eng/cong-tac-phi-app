@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>VP – Kho riêng</title>
+<style>
+  :root{--bg:#f4f6f9;--card:#fff;--ink:#1c2430;--mut:#667085;--line:#d9dfe7;--pri:#1f6feb;--ok:#137333;--warn:#b45309;--bad:#c62828}
+  @media (prefers-color-scheme:dark){:root{--bg:#14181f;--card:#1d232d;--ink:#e8ecf2;--mut:#98a2b3;--line:#323b49;--pri:#5b9bff;--ok:#5fd38a;--warn:#f5b04a;--bad:#ff7b7b}}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Segoe UI",system-ui,sans-serif;padding:calc(20px + env(safe-area-inset-top)) 16px calc(20px + env(safe-area-inset-bottom))}
+  .wrap{max-width:720px;margin:0 auto}
+  h1{font-size:22px;margin:0}
+  h2{font-size:17px;margin:0 0 6px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}
+  button{font:inherit;font-weight:600;border:0;border-radius:10px;padding:11px 16px;cursor:pointer;background:var(--pri);color:#fff}
+  button.sec{background:transparent;color:var(--pri);border:1px solid var(--pri)}
+  button.del{background:transparent;color:var(--bad);border:1px solid var(--bad)}
+  button.sm{padding:7px 12px;font-size:14px}
+  .ok{color:var(--ok)}.warn{color:var(--warn)}.mut{color:var(--mut)}.bad{color:var(--bad)}
+  .hide{display:none!important}
+  .badge{display:inline-block;font-size:13px;font-weight:700;padding:2px 10px;border-radius:999px}
+  .badge.on{background:#e6f4ea;color:#137333}.badge.off{background:#fdecea;color:#c62828}
+  @media (prefers-color-scheme:dark){.badge.on{background:#163a24;color:#5fd38a}.badge.off{background:#3d1d1d;color:#ff7b7b}}
+  .help{font-size:14px;color:var(--mut);margin:8px 0 0}
+  .help ol{margin:6px 0 0;padding-left:20px}
+  .app{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--line)}
+  .app:first-child{border-top:0}
+  .app img,.ico{width:44px;height:44px;border-radius:12px;flex:none;background:var(--line)}
+  .app .nm{font-weight:700}
+  .app .st{font-size:14px;margin:2px 0 8px}
+  .app .bt{display:flex;gap:8px;flex-wrap:wrap}
+  .full{width:100%;font-size:17px;padding:14px}
+  input.pin{font:inherit;font-size:30px;letter-spacing:14px;text-align:center;width:100%;padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);margin:6px 0 12px}
+  input.q{font:inherit;width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);margin-bottom:8px}
+  .pick{display:flex;gap:12px;align-items:center;padding:9px 2px;border-top:1px solid var(--line)}
+  .pick input{width:22px;height:22px;flex:none}
+  .pick img{width:36px;height:36px;border-radius:10px}
+  .pick label{flex:1;font-weight:600}
+  .lockscreen{text-align:center;padding:40px 16px}
+  .lockscreen .big{font-size:56px;line-height:1}
+  .modal{position:fixed;inset:0;background:#0007;display:flex;align-items:flex-end;justify-content:center;z-index:80}
+  .modal .box{background:var(--card);color:var(--ink);width:100%;max-width:720px;max-height:88vh;overflow:auto;border-radius:16px 16px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom))}
+  .modal .foot{display:flex;gap:10px;margin-top:12px}
+  .modal .foot button{flex:1}
+
+  .vpsw{position:relative;margin-left:auto;flex:none}
+  .vpsw>button{font:inherit;font-size:14px;font-weight:700;border:1px solid #c9d3e8;background:#fff;color:#1f3864;border-radius:999px;padding:7px 14px;cursor:pointer;white-space:nowrap}
+  .vpsw .m{position:absolute;right:0;top:calc(100% + 6px);background:#fff;border:1px solid #d9dfeb;border-radius:12px;box-shadow:0 6px 24px #0002;min-width:220px;z-index:60;overflow:hidden}
+  .vpsw .m a{display:flex;gap:10px;align-items:center;padding:13px 16px;color:#1d2433;text-decoration:none;font-weight:600;font-size:15px}
+  .vpsw .m a+a{border-top:1px solid #eef1f6}
+  .vpsw .m a.on{background:#eef4ff;color:#1f6feb}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><h1>VP <span class="mut" style="font-size:13px;font-weight:400">· bản __APP_VERSION__</span></h1><div class="vpsw"><button type="button" id="vpswBtn">Kho riêng ▾</button><div class="m" id="vpswMenu" hidden><a href="ctp.html">🗓 Công tác phí</a><a href="bionote.html">🧪 Đặt hàng Bionote</a><a href="kho.html" class="on">🔒 Kho riêng</a></div></div></div>
+
+  <!-- Lần đầu: tạo mã PIN -->
+  <div id="vSetup" class="card hide">
+    <h2>🔒 Tạo mã PIN cho Kho riêng</h2>
+    <p class="help" style="margin-top:0">Mã PIN 4 số dùng để mở Kho riêng và mở các app anh khoá (khi không dùng vân tay). Vân tay là vân tay đã cài trong máy.</p>
+    <p style="margin:12px 0 0;font-weight:600" id="setupLbl">Gõ mã PIN mới (4 số)</p>
+    <input class="pin" id="pin1" type="password" inputmode="numeric" maxlength="4" autocomplete="off">
+    <p style="margin:0;font-weight:600">Gõ lại mã PIN để chắc chắn</p>
+    <input class="pin" id="pin2" type="password" inputmode="numeric" maxlength="4" autocomplete="off">
+    <button class="full" id="bSetPin" type="button">Lưu mã PIN</button>
+    <button class="full sec hide" id="bCancelPin" type="button" style="margin-top:8px">Huỷ, giữ mã cũ</button>
+    <p id="setupMsg" class="warn" style="margin:8px 0 0"></p>
+  </div>
+
+  <!-- Đang khoá -->
+  <div id="vLocked" class="card lockscreen hide">
+    <div class="big">🔒</div>
+    <h2 style="margin-top:12px">Kho riêng đang khoá</h2>
+    <p class="mut" style="margin:0 0 16px">Dùng vân tay hoặc mã PIN 4 số để xem các app trong kho.</p>
+    <button class="full" id="bUnlock" type="button">Mở khoá</button>
+  </div>
+
+  <!-- Đã mở -->
+  <div id="vMain" class="hide">
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:8px;justify-content:space-between"><h2 style="margin:0">Khoá khi mở app</h2><span id="svcBadge" class="badge off">Chưa bật</span></div>
+      <p class="help" id="svcText"></p>
+      <div id="svcOff">
+        <button class="full" id="bSvc" type="button" style="margin-top:10px">Bật quyền "Hỗ trợ tiếp cận" cho VP</button>
+        <div class="help">Trong trang vừa mở:
+          <ol><li>Chọn <b>Ứng dụng đã cài đặt</b> (nếu có) → <b>VP – Khoá app</b>.</li>
+          <li>Gạt nút sang <b>Bật</b> → bấm <b>Cho phép</b>.</li>
+          <li>Quay lại VP, chữ đỏ "Chưa bật" sẽ thành xanh "Đang bật".</li></ol>
+          <p style="margin:8px 0 0"><b>Nếu nút gạt bị mờ</b> hoặc báo "Cài đặt bị hạn chế" (do VP cài từ file, không phải từ cửa hàng):</p>
+          <ol><li>Bấm nút dưới đây để mở trang thông tin của VP.</li>
+          <li>Bấm dấu <b>⋮</b> góc trên bên phải → <b>Cho phép cài đặt bị hạn chế</b> → xác nhận.</li>
+          <li>Bấm lại nút xanh phía trên và bật như các bước trên.</li></ol>
+          <button class="sec sm" id="bAppInfo" type="button" style="margin-top:8px">Mở trang thông tin của VP</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><h2 style="margin:0">App trong kho <span class="mut" id="cnt"></span></h2><button class="sm" id="bAdd" type="button">＋ Thêm app</button></div>
+      <p class="help">Mỗi app trong kho được <b>khoá</b>: mở bằng cách nào cũng phải có vân tay hoặc mã PIN. Bấm <b>Mở</b> ở đây thì vào thẳng, không hỏi lại. Nên <b>giấu biểu tượng</b> để người khác không thấy app trên màn hình.</p>
+      <div id="list" style="margin-top:6px"></div>
+    </div>
+
+    <div class="card">
+      <h2>Cài đặt</h2>
+      <button class="sec sm" id="bChangePin" type="button">Đổi mã PIN</button>
+      <details style="margin-top:12px"><summary style="cursor:pointer;color:var(--pri);font-weight:600">Kho riêng hoạt động thế nào?</summary>
+        <div class="help">
+          <p style="margin:6px 0">• <b>Khoá</b>: khi app trong kho hiện lên (mở từ biểu tượng, ô tìm kiếm, thông báo…), VP che lại bằng màn hình vân tay / mã PIN. Bấm "Huỷ" thì về màn hình chính.</p>
+          <p style="margin:6px 0">• Mở khoá xong thì dùng app bình thường. <b>Về màn hình chính</b> hoặc <b>tắt màn hình</b> là app khoá lại.</p>
+          <p style="margin:6px 0">• <b>Giấu biểu tượng</b> do Samsung làm: VP chỉ mở sẵn trang "Ẩn ứng dụng" để anh tích chọn. VP không tự biết app đã giấu hay chưa, nên anh bấm "Đã giấu xong" để ghi lại.</p>
+          <p style="margin:6px 0">• Ô tìm kiếm của Samsung vẫn tìm thấy app đã giấu (Samsung cố ý làm vậy), nhưng bấm vào vẫn bị khoá.</p>
+          <p style="margin:6px 0">• Sai mã PIN 5 lần liền thì phải chờ 30 giây.</p>
+          <p style="margin:6px 0">• Thoát khỏi Kho riêng (về màn hình chính, mở app khác, chuyển sang công cụ khác) là kho tự khoá lại.</p>
+        </div>
+      </details>
+    </div>
+  </div>
+</div>
+
+<!-- Chọn app -->
+<div id="mPick" class="modal hide"><div class="box">
+  <h2>Chọn app đưa vào kho</h2>
+  <input class="q" id="q" placeholder="Tìm tên app, ví dụ Zalo">
+  <div id="pickList" class="mut">Đang tải danh sách app…</div>
+  <div class="foot"><button class="sec" id="bPickCancel" type="button">Huỷ</button><button id="bPickOk" type="button">✓ Xong</button></div>
+</div></div>
+
+<!-- Hỏi đã giấu xong chưa -->
+<div id="mHid" class="modal hide"><div class="box">
+  <h2 id="hidTitle"></h2>
+  <div class="help" id="hidText"></div>
+  <div class="foot"><button class="sec" id="bHidNo" type="button">Chưa giấu</button><button id="bHidYes" type="button">✓ Đã giấu xong</button></div>
+</div></div>
+
+<script src="vp-out.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const cap=window.Capacitor;
+const NATIVE=!!(cap&&cap.isNativePlatform&&cap.isNativePlatform());
+const VP=NATIVE?(cap.registerPlugin?cap.registerPlugin('VpNative'):cap.Plugins.VpNative):null;
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+// ---- Bản xem thử trên máy tính (không phải điện thoại): dữ liệu giả, mã PIN thử 1234 ----
+const DEMO={hasPin:true,serviceOn:false,locked:['com.zing.zalo'],
+  apps:[{pkg:'com.zing.zalo',label:'Zalo'},{pkg:'com.facebook.orca',label:'Messenger'},{pkg:'com.facebook.katana',label:'Facebook'},{pkg:'com.google.android.gm',label:'Gmail'},{pkg:'com.android.chrome',label:'Chrome'},{pkg:'com.sec.android.gallery3d',label:'Bộ sưu tập'}]};
+const api={
+  status:async()=>NATIVE?VP.lockStatus():{hasPin:DEMO.hasPin,serviceOn:DEMO.serviceOn,locked:DEMO.locked.slice()},
+  setPin:async pin=>NATIVE?VP.setPin({pin}):(DEMO.hasPin=true),
+  setLocked:async pkgs=>NATIVE?VP.setLocked({pkgs}):(DEMO.locked=pkgs.slice()),
+  verify:async()=>NATIVE?(await VP.verify()).ok:(prompt('Bản xem thử – gõ mã PIN (1234):')==='1234'),
+  apps:async()=>NATIVE?(await VP.listApps()).apps:DEMO.apps,
+  launch:async pkg=>NATIVE?VP.launchApp({pkg}):alert('Bản xem thử: sẽ mở '+pkg),
+  hideApps:async()=>NATIVE?(await VP.openHideApps()).how:'hide',
+  svc:async()=>NATIVE?VP.openAccessibility():(DEMO.serviceOn=true),
+  appInfo:async()=>NATIVE?VP.openAppInfo():alert('Bản xem thử: mở trang thông tin của VP'),
+};
+
+let st={hasPin:false,serviceOn:false,locked:[]}, apps=null, unlocked=false, busy=false, away=0, changing=false;
+const HKEY='vp_kho_hidden';
+const hidden=()=>{try{return JSON.parse(localStorage.getItem(HKEY)||'{}')}catch(e){return {}}};
+const setHidden=(pkg,v)=>{const h=hidden(); if(v)h[pkg]=1; else delete h[pkg]; try{localStorage.setItem(HKEY,JSON.stringify(h))}catch(e){}};
+
+function show(v){ for(const k of ['vSetup','vLocked','vMain']) $(k).classList.toggle('hide',k!==v); }
+
+async function loadApps(){ if(!apps){ try{ apps=await api.apps(); }catch(e){ apps=[]; } } return apps; }
+const appOf=pkg=>(apps||[]).find(a=>a.pkg===pkg)||{pkg,label:pkg,icon:''};
+const icon=a=>a.icon?`<img src="data:image/png;base64,${a.icon}" alt="">`:`<div class="ico"></div>`;
+
+async function render(){
+  st=await api.status();
+  if(!st.hasPin){ unlocked=false; openSetup(false); return; }
+  if(!unlocked){ show('vLocked'); return; }
+  show('vMain');
+  // Khoá khi mở app
+  $('svcBadge').className='badge '+(st.serviceOn?'on':'off');
+  $('svcBadge').textContent=st.serviceOn?'Đang bật':'Chưa bật';
+  $('svcText').innerHTML=st.serviceOn
+    ?'<span class="ok">Các app trong kho đang được khoá.</span> Ai mở Zalo (hay app khác trong kho) bằng cách nào cũng phải có vân tay hoặc mã PIN.'
+    :'<span class="bad">Các app trong kho chưa được khoá.</span> Cần bật quyền "Hỗ trợ tiếp cận" cho VP <b>một lần</b>, VP mới biết lúc nào app trong kho được mở để che lại.';
+  $('svcOff').classList.toggle('hide',st.serviceOn);
+  // Danh sách app
+  await loadApps();
+  const h=hidden();
+  $('cnt').textContent=`(${st.locked.length} app)`;
+  if(!st.locked.length){ $('list').innerHTML='<p class="mut" style="margin:8px 0 0">Chưa có app nào. Bấm <b>＋ Thêm app</b> để chọn, ví dụ Zalo.</p>'; return; }
+  const items=st.locked.map(appOf).sort((a,b)=>a.label.localeCompare(b.label,'vi'));
+  $('list').innerHTML=items.map(a=>`<div class="app">${icon(a)}<div style="flex:1;min-width:0">
+    <div class="nm">${esc(a.label)}</div>
+    <div class="st">${st.serviceOn?'<span class="ok">🔒 Đã khoá</span>':'<span class="bad">🔓 Chưa khoá (bật quyền ở trên)</span>'} · Biểu tượng: ${h[a.pkg]?'<span class="ok">đã giấu</span>':'<span class="warn">chưa giấu</span>'}</div>
+    <div class="bt"><button class="sm" data-open="${esc(a.pkg)}">Mở</button>${h[a.pkg]?`<button class="sm sec" data-hide="${esc(a.pkg)}">Hiện lại biểu tượng</button>`:`<button class="sm sec" data-hide="${esc(a.pkg)}">Giấu biểu tượng</button>`}<button class="sm del" data-rm="${esc(a.pkg)}">Bỏ khỏi kho</button></div>
+  </div></div>`).join('');
+}
+
+// ---- Mã PIN ----
+function openSetup(isChange){
+  changing=isChange; show('vSetup');
+  $('pin1').value=$('pin2').value=''; $('setupMsg').textContent='';
+  $('bCancelPin').classList.toggle('hide',!isChange);
+  setTimeout(()=>$('pin1').focus(),100);
+}
+$('bSetPin').onclick=async()=>{
+  const a=$('pin1').value, b=$('pin2').value;
+  if(!/^\d{4}$/.test(a)){ $('setupMsg').textContent='Mã PIN phải đúng 4 chữ số.'; return; }
+  if(a!==b){ $('setupMsg').textContent='Hai lần gõ không giống nhau, gõ lại.'; $('pin2').value=''; return; }
+  await api.setPin(a); unlocked=true; changing=false; render();
+  if(!$('vMain').classList.contains('hide')) alert('Đã lưu mã PIN mới.');
+};
+$('bCancelPin').onclick=()=>{ changing=false; render(); };
+$('bChangePin').onclick=async()=>{ busy=true; const ok=await api.verify(); busy=false; if(ok) openSetup(true); };
+
+// ---- Mở khoá kho ----
+async function unlock(){
+  if(busy) return; busy=true;
+  try{ unlocked=await api.verify(); } finally{ busy=false; }
+  render();
+}
+$('bUnlock').onclick=unlock;
+
+// Thoát ra là tự khoá lại (trừ lúc đang ở trang cài đặt VP vừa mở, tối đa 3 phút)
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){ if(!busy && !(away && Date.now()<away)){ unlocked=false; } }
+  else{ const back=away; away=0; if(!unlocked && st.hasPin && !changing){ show('vLocked'); if(!busy) unlock(); } else if(back) render(); }
+});
+window.addEventListener('pagehide',()=>{ unlocked=false; });
+const goSettings=()=>{ away=Date.now()+180000; };
+
+// ---- Quyền Hỗ trợ tiếp cận ----
+$('bSvc').onclick=()=>{ goSettings(); api.svc(); if(!NATIVE) render(); };
+$('bAppInfo').onclick=()=>{ goSettings(); api.appInfo(); };
+
+// ---- Danh sách app trong kho ----
+$('list').onclick=async e=>{
+  const b=e.target.closest('button'); if(!b) return;
+  if(b.dataset.open){ try{ await api.launch(b.dataset.open); }catch(err){ alert(err.message||err); } return; }
+  if(b.dataset.rm){ const a=appOf(b.dataset.rm);
+    if(!confirm(`Bỏ ${a.label} khỏi kho? App sẽ không còn bị khoá.${hidden()[a.pkg]?'\nBiểu tượng vẫn đang giấu – muốn hiện lại thì vào trang Ẩn ứng dụng của Samsung bỏ tích.':''}`)) return;
+    await api.setLocked(st.locked.filter(p=>p!==a.pkg)); setHidden(a.pkg,false); render(); return; }
+  if(b.dataset.hide){ const a=appOf(b.dataset.hide), wasHidden=!!hidden()[a.pkg];
+    goSettings(); const how=await api.hideApps();
+    const where = how==='hide' ? 'VP đã mở trang <b>Ẩn ứng dụng</b> của Samsung.'
+      : how==='settings' ? 'VP đã mở <b>Cài đặt màn hình chờ</b> của Samsung. Kéo xuống chọn <b>Ẩn ứng dụng trên màn hình Chờ và màn hình Ứng dụng</b>.'
+      : 'Máy không cho VP mở thẳng trang này. Anh làm tay: nhấn giữ chỗ trống trên màn hình chính → <b>Cài đặt</b> → <b>Ẩn ứng dụng trên màn hình Chờ và màn hình Ứng dụng</b>.';
+    $('hidTitle').textContent=(wasHidden?'Hiện lại biểu tượng ':'Giấu biểu tượng ')+a.label;
+    $('hidText').innerHTML=`<p style="margin:0 0 6px">${where}</p><ol><li>${wasHidden?'Bỏ tích':'Tích chọn'} <b>${esc(a.label)}</b>.</li><li>Bấm <b>Xong</b> (hoặc nút quay lại).</li><li>Quay về VP, bấm nút dưới đây.</li></ol>`;
+    $('bHidYes').textContent=wasHidden?'✓ Đã hiện lại':'✓ Đã giấu xong';
+    $('bHidNo').textContent=wasHidden?'Vẫn đang giấu':'Chưa giấu';
+    $('bHidYes').onclick=()=>{ setHidden(a.pkg,!wasHidden); $('mHid').classList.add('hide'); render(); };
+    $('bHidNo').onclick=()=>{ $('mHid').classList.add('hide'); };
+    $('mHid').classList.remove('hide');
+  }
+};
+
+// ---- Chọn app ----
+let pickSel=new Set();
+function drawPick(){
+  const q=$('q').value.trim().toLowerCase();
+  const list=(apps||[]).filter(a=>!q||a.label.toLowerCase().includes(q)).sort((a,b)=>(pickSel.has(b.pkg)-pickSel.has(a.pkg))||a.label.localeCompare(b.label,'vi'));
+  $('pickList').innerHTML=list.length?list.map((a,i)=>`<div class="pick"><input type="checkbox" id="pk${i}" data-pkg="${esc(a.pkg)}"${pickSel.has(a.pkg)?' checked':''}>${icon(a)}<label for="pk${i}">${esc(a.label)}</label></div>`).join(''):'<p class="mut">Không thấy app nào tên như vậy.</p>';
+}
+$('bAdd').onclick=async()=>{ pickSel=new Set(st.locked); $('q').value=''; $('mPick').classList.remove('hide'); $('pickList').textContent='Đang tải danh sách app…'; await loadApps(); drawPick(); };
+$('q').oninput=drawPick;
+$('pickList').onchange=e=>{ const c=e.target; if(c.dataset.pkg){ c.checked?pickSel.add(c.dataset.pkg):pickSel.delete(c.dataset.pkg); } };
+$('bPickCancel').onclick=()=>$('mPick').classList.add('hide');
+$('bPickOk').onclick=async()=>{ await api.setLocked([...pickSel]); $('mPick').classList.add('hide'); render(); };
+
+render().then(()=>{ if(st.hasPin && !unlocked) unlock(); });
+</script>
+<script>
+try{localStorage.setItem('vp_tool',location.pathname.split('/').pop()||'ctp.html')}catch(e){}
+document.getElementById('vpswBtn').onclick=e=>{e.stopPropagation();const m=document.getElementById('vpswMenu');m.hidden=!m.hidden;};
+document.addEventListener('click',()=>{document.getElementById('vpswMenu').hidden=true;});
+</script>
+</body>
+</html>

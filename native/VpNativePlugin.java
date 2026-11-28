@@ -1,6 +1,23 @@
 package vn.truong.congtacphi;
 
 import android.content.ActivityNotFoundException;
+import android.content.ComponentName;
+import android.content.pm.ActivityInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
+import android.provider.Settings;
+import androidx.activity.result.ActivityResult;
+import com.getcapacitor.JSArray;
+import com.getcapacitor.annotation.ActivityCallback;
+import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import android.content.ClipData;
 import android.content.ContentResolver;
 import android.content.ContentUris;
@@ -157,5 +174,160 @@ public class VpNativePlugin extends Plugin {
         } catch (Exception e) {
             call.reject("Không gửi được: " + e.getMessage());
         }
+    }
+
+    // ===== Kho riêng (bản 2.11): giấu + khoá app =====
+
+    private boolean lockServiceOn() {
+        String s = Settings.Secure.getString(getContext().getContentResolver(), Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
+        return s != null && s.contains(getContext().getPackageName() + "/") && s.contains("VpLockService");
+    }
+
+    @PluginMethod
+    public void lockStatus(PluginCall call) {
+        JSObject r = new JSObject();
+        r.put("hasPin", VpLockStore.hasPin(getContext()));
+        r.put("serviceOn", lockServiceOn());
+        JSArray a = new JSArray();
+        for (String p : VpLockStore.locked(getContext())) a.put(p);
+        r.put("locked", a);
+        call.resolve(r);
+    }
+
+    @PluginMethod
+    public void setPin(PluginCall call) {
+        String pin = call.getString("pin", "");
+        if (pin == null || !pin.matches("\\d{4}")) { call.reject("Mã PIN phải đúng 4 chữ số"); return; }
+        VpLockStore.setPin(getContext(), pin);
+        call.resolve();
+    }
+
+    @PluginMethod
+    public void setLocked(PluginCall call) {
+        JSArray a = call.getArray("pkgs");
+        Set<String> s = new HashSet<>();
+        try { if (a != null) for (int i = 0; i < a.length(); i++) s.add(a.getString(i)); }
+        catch (Exception e) { call.reject("Danh sách app sai"); return; }
+        VpLockStore.setLocked(getContext(), s);
+        call.resolve();
+    }
+
+    // Mở màn hình vân tay / mã PIN của VP; trả về ok=true nếu đúng
+    @PluginMethod
+    public void verify(PluginCall call) {
+        if (!VpLockStore.hasPin(getContext())) { JSObject r = new JSObject(); r.put("ok", false); call.resolve(r); return; }
+        startActivityForResult(call, new Intent(getContext(), VaultLockActivity.class), "verifyDone");
+    }
+
+    @ActivityCallback
+    private void verifyDone(PluginCall call, ActivityResult result) {
+        if (call == null) return;
+        JSObject r = new JSObject();
+        r.put("ok", result.getResultCode() == android.app.Activity.RESULT_OK);
+        call.resolve(r);
+    }
+
+    private String iconB64(Drawable d) {
+        try {
+            int n = 96;
+            Bitmap b = Bitmap.createBitmap(n, n, Bitmap.Config.ARGB_8888);
+            Canvas c = new Canvas(b);
+            d.setBounds(0, 0, n, n);
+            d.draw(c);
+            ByteArrayOutputStream o = new ByteArrayOutputStream();
+            b.compress(Bitmap.CompressFormat.PNG, 100, o);
+            return Base64.encodeToString(o.toByteArray(), Base64.NO_WRAP);
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    // Danh sách app có biểu tượng trên máy (kể cả app đã giấu biểu tượng)
+    @PluginMethod
+    public void listApps(PluginCall call) {
+        PackageManager pm = getContext().getPackageManager();
+        Intent i = new Intent(Intent.ACTION_MAIN);
+        i.addCategory(Intent.CATEGORY_LAUNCHER);
+        List<ResolveInfo> list = pm.queryIntentActivities(i, 0);
+        Set<String> seen = new HashSet<>();
+        JSArray a = new JSArray();
+        for (ResolveInfo ri : list) {
+            String p = ri.activityInfo.packageName;
+            if (p.equals(getContext().getPackageName()) || !seen.add(p)) continue;
+            JSObject o = new JSObject();
+            o.put("pkg", p);
+            o.put("label", ri.loadLabel(pm).toString());
+            o.put("icon", iconB64(ri.loadIcon(pm)));
+            a.put(o);
+        }
+        JSObject r = new JSObject();
+        r.put("apps", a);
+        call.resolve(r);
+    }
+
+    // Mở app từ Kho riêng (đã xác thực trong Kho riêng nên không hỏi lại)
+    @PluginMethod
+    public void launchApp(PluginCall call) {
+        String p = call.getString("pkg");
+        Intent i = p == null ? null : getContext().getPackageManager().getLaunchIntentForPackage(p);
+        if (i == null) { call.reject("Không mở được app này"); return; }
+        VpLockStore.unlockedPkg = p;
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        getActivity().startActivity(i);
+        call.resolve();
+    }
+
+    private boolean tryStart(Intent i) {
+        try {
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            getActivity().startActivity(i);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    // Mở trang "Ẩn ứng dụng" của Samsung (One UI Home); không được thì mở Cài đặt màn hình chờ
+    @PluginMethod
+    public void openHideApps(PluginCall call) {
+        JSObject r = new JSObject();
+        String L = "com.sec.android.app.launcher";
+        List<String> hide = new ArrayList<>(), sett = new ArrayList<>();
+        try {
+            PackageInfo pi = getContext().getPackageManager().getPackageInfo(L, PackageManager.GET_ACTIVITIES);
+            if (pi.activities != null) for (ActivityInfo ai : pi.activities) {
+                if (!ai.exported) continue;
+                String n = ai.name.toLowerCase();
+                if (n.contains("hide") || n.contains("hidden")) hide.add(ai.name);
+                else if (n.contains("setting")) sett.add(ai.name);
+            }
+        } catch (Exception ignored) {}
+        for (String n : hide) {
+            if (tryStart(new Intent().setComponent(new ComponentName(L, n)))) { r.put("how", "hide"); call.resolve(r); return; }
+        }
+        for (String n : sett) {
+            if (tryStart(new Intent().setComponent(new ComponentName(L, n)))) { r.put("how", "settings"); call.resolve(r); return; }
+        }
+        r.put("how", "none");
+        call.resolve(r);
+    }
+
+    // Mở trang bật "Hỗ trợ tiếp cận" (để VP khoá được app khi mở)
+    @PluginMethod
+    public void openAccessibility(PluginCall call) {
+        JSObject r = new JSObject();
+        Intent d = new Intent("android.settings.ACCESSIBILITY_DETAILS_SETTINGS");
+        d.putExtra(Intent.EXTRA_COMPONENT_NAME, new ComponentName(getContext(), VpLockService.class).flattenToString());
+        r.put("ok", (Build.VERSION.SDK_INT >= 30 && tryStart(d)) || tryStart(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)));
+        call.resolve(r);
+    }
+
+    // Mở trang Thông tin ứng dụng của VP (để "Cho phép cài đặt bị hạn chế")
+    @PluginMethod
+    public void openAppInfo(PluginCall call) {
+        Intent i = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getContext().getPackageName()));
+        JSObject r = new JSObject();
+        r.put("ok", tryStart(i));
+        call.resolve(r);
     }
 }
