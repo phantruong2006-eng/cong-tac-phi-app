@@ -2,6 +2,12 @@
 
 Mỗi lần sửa app thì tăng số trong file `VERSION` (1.0 → 1.1 → 1.2 …).
 
+## 2.17
+- Kho riêng tự **sao lưu** vào Tải về/VP/vp-cai-dat.dat (đã mã hoá, mở bằng tay không đọc được) mỗi lần thay đổi. File còn lại khi gỡ VP.
+- Cài lại VP → bấm 5 lần + 89 → VP tự mở trình chọn file ở Tải về/VP → chọn vp-cai-dat.dat là có lại: danh sách app trong kho,
+  mã PIN, từ khoá chặn, từ đổi, trạng thái đã giấu. App nào đã gỡ khỏi máy thì bỏ qua. Có nút "Khôi phục kho cũ" nếu lỡ bấm Huỷ.
+- Sau khi khôi phục chỉ cần bật lại quyền "Hỗ trợ tiếp cận" (3 bước có nút).
+
 ## 2.16
 - Kho riêng → Cài đặt: nút **🗑 Gỡ hết: app trong kho + VP**. Gỡ lần lượt chỉ các app trong kho (máy hỏi từng app, OK mới gỡ),
   cuối cùng hỏi "Gỡ luôn VP?". App nào bấm Huỷ thì giữ lại trong kho. Thêm quyền REQUEST_DELETE_PACKAGES.

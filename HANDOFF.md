@@ -24,6 +24,7 @@
 - Không đọc được app nào đã bị Samsung giấu → anh tự bấm "Đã giấu xong" (lưu localStorage vp_kho_hidden).
 - Từ 2.12: Kho riêng không có trong menu; lối vào ẩn = bấm 5 lần vào tiêu đề "VP · bản …" → gõ 89 (www/vp-secret.js).
 - Từ 2.15: vào kho bằng mã 89 là đủ, không còn khoá kho bằng vân tay/PIN (PIN chỉ dùng cho app trong kho). Phần bật quyền là 3 bước có nút: openAccessibility, openAppInfo, openAutoBlocker (dò activity 'autoblock' trong com.android.settings, không được thì ACTION_SECURITY_SETTINGS). Tên quyền giữ 'VP – Khoá app' (anh dặn không đổi).
+- Từ 2.16: nút Gỡ hết (uninstallApp từng app trong kho rồi uninstallSelf). Từ 2.17: sao lưu backupKho → Download/VP/vp-cai-dat.dat (JSON XOR 'VP89kho-rieng' + base64, tiền tố VPK1:), URI lưu prefs bkUri; khôi phục pickBackup (SAF, takePersistableUriPermission) vì app cài lại không đọc được file cũ qua MediaStore.
 - Từ 2.13 có Lớp 2: VpLockService nghe typeViewTextChanged trong launcher/galaxyfinder, khớp tên app trong kho (bỏ dấu) thì ACTION_SET_TEXT "". Bật/tắt: prefs searchBlock.
 
 ## Kỹ thuật (để làm tiếp)

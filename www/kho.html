@@ -60,6 +60,11 @@
 
   <!-- Lần đầu: tạo mã PIN -->
   <div id="vSetup" class="card hide">
+    <div id="restoreBox" style="margin:0 0 14px;padding:12px;border:1px solid var(--pri);border-radius:10px">
+      <b>Mới cài lại VP?</b>
+      <p class="help" style="margin:4px 0 8px">VP tự lưu bản sao kho trong <b>Tải về/VP</b>, file <b>vp-cai-dat.dat</b> (file này vẫn còn khi gỡ VP). Bấm nút dưới, chọn file đó là có lại các app trong kho, mã PIN và từ khoá như cũ.</p>
+      <button class="sm" id="bRestore" type="button">Khôi phục kho cũ</button>
+    </div>
     <h2>🔒 Tạo mã PIN cho Kho riêng</h2>
     <p class="help" style="margin-top:0">Mã PIN 4 số dùng để mở các app trong kho khi không dùng vân tay (vân tay là vân tay đã cài trong máy). Vào Kho riêng không cần mã này, chỉ cần mã 89.</p>
     <p style="margin:12px 0 0;font-weight:600" id="setupLbl">Gõ mã PIN mới (4 số)</p>
@@ -186,6 +191,8 @@ const api={
   svc:async()=>NATIVE?VP.openAccessibility():(DEMO.serviceOn=true),
   uninstall:async pkg=>NATIVE?(await VP.uninstallApp({pkg})).gone:confirm('Bản xem thử: gỡ '+pkg+'?'),
   uninstallSelf:async()=>NATIVE?VP.uninstallSelf():alert('Bản xem thử: gỡ VP'),
+  backup:async()=>NATIVE?VP.backupKho({hidden:hidden()}):null,
+  restore:async()=>NATIVE?VP.pickBackup():{ok:false,msg:'Bản xem thử không khôi phục được'},
   appInfo:async()=>NATIVE?VP.openAppInfo():alert('Bản xem thử: mở trang thông tin của VP'),
   autoBlock:async()=>NATIVE?(await VP.openAutoBlocker()).how:'security',
 };
@@ -204,7 +211,10 @@ const icon=a=>a.icon?`<img src="data:image/png;base64,${a.icon}" alt="">`:`<div 
 
 async function render(){
   st=await api.status();
-  if(!st.hasPin){ openSetup(false); return; }
+  if(!st.hasPin){ openSetup(false);
+    if(!st.locked.length && !localStorage.getItem('vp_kho_asked')){ try{localStorage.setItem('vp_kho_asked','1')}catch(e){} restore(true); }
+    return; }
+  saveBackup();
   show('vMain');
   // Khoá khi mở app
   $('svcBadge').className='badge '+(st.serviceOn?'on':'off');
@@ -240,11 +250,28 @@ function blockHint(a){
   return out.map(x=>`<b>${esc(x)}</b>…`).join(', ')+' (đầu tên app)'+(kws.length?`; từ khoá thêm: ${kws.map(x=>`<b>${esc(x)}</b>`).join(', ')}`:'')+'.';
 }
 
+// ---- Sao lưu / khôi phục (2.17) ----
+let bkT=0;
+function saveBackup(){ clearTimeout(bkT); bkT=setTimeout(()=>{ api.backup().catch(()=>{}); },800); }
+async function restore(auto){
+  busy=true; let r;
+  try{ r=await api.restore(); }catch(e){ r={ok:false,msg:e.message||String(e)}; } finally{ busy=false; }
+  if(r.ok){
+    try{ localStorage.setItem(HKEY, r.hidden||'{}'); }catch(e){}
+    changing=false; await render();
+    alert(`Đã khôi phục kho: ${r.count} app, mã PIN và từ khoá như cũ.\nCòn 1 việc: bật lại quyền "Hỗ trợ tiếp cận" theo 3 bước ở trên cùng.`);
+  } else if(!r.cancel || !auto){
+    if(!r.cancel) alert('Không khôi phục được: '+(r.msg||'lỗi không rõ')+'\nAnh chọn đúng file vp-cai-dat.dat trong Tải về/VP.');
+  }
+}
+$('bRestore').onclick=()=>restore(false);
+
 // ---- Mã PIN ----
 function openSetup(isChange){
   changing=isChange; show('vSetup');
   $('pin1').value=$('pin2').value=''; $('setupMsg').textContent='';
   $('bCancelPin').classList.toggle('hide',!isChange);
+  $('restoreBox').classList.toggle('hide',isChange);
   setTimeout(()=>$('pin1').focus(),100);
 }
 $('bSetPin').onclick=async()=>{
