@@ -103,6 +103,12 @@
       <div id="list" style="margin-top:6px"></div>
     </div>
 
+    <div class="card" id="cSearch">
+      <div style="display:flex;align-items:center;gap:8px;justify-content:space-between"><h2 style="margin:0">Chặn tìm kiếm</h2><label style="display:flex;gap:6px;align-items:center;font-weight:600"><input type="checkbox" id="sbOn" style="width:22px;height:22px"> <span id="sbTxt"></span></label></div>
+      <p class="help">Ô tìm kiếm của Samsung vẫn tìm ra app đã giấu. Khi bật, ai gõ <b>chữ đầu tên</b> app trong kho vào ô tìm kiếm (ví dụ app "ACB ONE": gõ "a", "ac", "acb", "one") thì VP <b>xoá chữ ngay</b> nên không ra kết quả, cũng không lưu vào lịch sử tìm kiếm.</p>
+      <p class="help">Lưu ý: tìm app khác cũng bắt đầu bằng chữ đó (ví dụ "Amazon") cũng bị xoá. Cần bật quyền "Hỗ trợ tiếp cận" ở trên. Samsung cập nhật có thể làm phần này ngừng chạy.</p>
+    </div>
+
     <div class="card">
       <h2>Cài đặt</h2>
       <button class="sec sm" id="bChangePin" type="button">Đổi mã PIN</button>
@@ -111,7 +117,7 @@
           <p style="margin:6px 0">• <b>Khoá</b>: khi app trong kho hiện lên (mở từ biểu tượng, ô tìm kiếm, thông báo…), VP che lại bằng màn hình vân tay / mã PIN. Bấm "Huỷ" thì về màn hình chính.</p>
           <p style="margin:6px 0">• Mở khoá xong thì dùng app bình thường. <b>Về màn hình chính</b> hoặc <b>tắt màn hình</b> là app khoá lại.</p>
           <p style="margin:6px 0">• <b>Giấu biểu tượng</b> do Samsung làm: VP chỉ mở sẵn trang "Ẩn ứng dụng" để anh tích chọn. VP không tự biết app đã giấu hay chưa, nên anh bấm "Đã giấu xong" để ghi lại.</p>
-          <p style="margin:6px 0">• Ô tìm kiếm của Samsung vẫn tìm thấy app đã giấu (Samsung cố ý làm vậy), nhưng bấm vào vẫn bị khoá.</p>
+          <p style="margin:6px 0">• Ô tìm kiếm của Samsung vẫn tìm thấy app đã giấu (Samsung cố ý làm vậy). Bật <b>Chặn tìm kiếm</b> để VP xoá chữ khi gõ tên app; nếu vẫn lọt thì bấm vào app cũng bị khoá.</p>
           <p style="margin:6px 0">• Sai mã PIN 5 lần liền thì phải chờ 30 giây.</p>
           <p style="margin:6px 0">• Thoát khỏi Kho riêng (về màn hình chính, mở app khác, chuyển sang công cụ khác) là kho tự khoá lại.</p>
         </div>
@@ -147,7 +153,7 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 const DEMO={hasPin:true,serviceOn:false,locked:['com.zing.zalo'],
   apps:[{pkg:'com.zing.zalo',label:'Zalo'},{pkg:'com.facebook.orca',label:'Messenger'},{pkg:'com.facebook.katana',label:'Facebook'},{pkg:'com.google.android.gm',label:'Gmail'},{pkg:'com.android.chrome',label:'Chrome'},{pkg:'com.sec.android.gallery3d',label:'Bộ sưu tập'}]};
 const api={
-  status:async()=>NATIVE?VP.lockStatus():{hasPin:DEMO.hasPin,serviceOn:DEMO.serviceOn,locked:DEMO.locked.slice()},
+  status:async()=>NATIVE?VP.lockStatus():{hasPin:DEMO.hasPin,serviceOn:DEMO.serviceOn,searchBlock:DEMO.searchBlock!==false,locked:DEMO.locked.slice()},
   setPin:async pin=>NATIVE?VP.setPin({pin}):(DEMO.hasPin=true),
   setLocked:async pkgs=>NATIVE?VP.setLocked({pkgs}):(DEMO.locked=pkgs.slice()),
   verify:async()=>NATIVE?(await VP.verify()).ok:(prompt('Bản xem thử – gõ mã PIN (1234):')==='1234'),
@@ -181,6 +187,7 @@ async function render(){
     ?'<span class="ok">Các app trong kho đang được khoá.</span> Ai mở Zalo (hay app khác trong kho) bằng cách nào cũng phải có vân tay hoặc mã PIN.'
     :'<span class="bad">Các app trong kho chưa được khoá.</span> Cần bật quyền "Hỗ trợ tiếp cận" cho VP <b>một lần</b>, VP mới biết lúc nào app trong kho được mở để che lại.';
   $('svcOff').classList.toggle('hide',st.serviceOn);
+  $('sbOn').checked=st.searchBlock!==false; $('sbTxt').textContent=$('sbOn').checked?'Đang bật':'Đang tắt';
   // Danh sách app
   await loadApps();
   const h=hidden();
@@ -226,6 +233,8 @@ document.addEventListener('visibilitychange',()=>{
 });
 window.addEventListener('pagehide',()=>{ unlocked=false; });
 const goSettings=()=>{ away=Date.now()+180000; };
+
+$('sbOn').onchange=async()=>{ const on=$('sbOn').checked; if(NATIVE) await VP.setSearchBlock({on}); else DEMO.searchBlock=on; render(); };
 
 // ---- Quyền Hỗ trợ tiếp cận ----
 $('bSvc').onclick=()=>{ goSettings(); api.svc(); if(!NATIVE) render(); };

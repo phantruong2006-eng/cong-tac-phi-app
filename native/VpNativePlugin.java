@@ -188,6 +188,7 @@ public class VpNativePlugin extends Plugin {
         JSObject r = new JSObject();
         r.put("hasPin", VpLockStore.hasPin(getContext()));
         r.put("serviceOn", lockServiceOn());
+        r.put("searchBlock", VpLockStore.searchBlock(getContext()));
         JSArray a = new JSArray();
         for (String p : VpLockStore.locked(getContext())) a.put(p);
         r.put("locked", a);
@@ -199,6 +200,12 @@ public class VpNativePlugin extends Plugin {
         String pin = call.getString("pin", "");
         if (pin == null || !pin.matches("\\d{4}")) { call.reject("Mã PIN phải đúng 4 chữ số"); return; }
         VpLockStore.setPin(getContext(), pin);
+        call.resolve();
+    }
+
+    @PluginMethod
+    public void setSearchBlock(PluginCall call) {
+        VpLockStore.setSearchBlock(getContext(), call.getBoolean("on", true));
         call.resolve();
     }
 

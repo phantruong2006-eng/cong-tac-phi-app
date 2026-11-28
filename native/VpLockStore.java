@@ -66,6 +66,10 @@ final class VpLockStore {
         return ok;
     }
 
+    /** Lớp 2 – chặn tìm kiếm (mặc định bật). */
+    static boolean searchBlock(Context c) { return p(c).getBoolean("searchBlock", true); }
+    static void setSearchBlock(Context c, boolean on) { p(c).edit().putBoolean("searchBlock", on).apply(); }
+
     static Set<String> locked(Context c) {
         return new HashSet<>(p(c).getStringSet("locked", new HashSet<>()));
     }

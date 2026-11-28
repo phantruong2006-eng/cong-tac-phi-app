@@ -2,6 +2,11 @@
 
 Mỗi lần sửa app thì tăng số trong file `VERSION` (1.0 → 1.1 → 1.2 …).
 
+## 2.13
+- Kho riêng: thêm **Chặn tìm kiếm** (Lớp 2, có nút bật/tắt, mặc định bật). Gõ chữ đầu tên app trong kho vào ô tìm kiếm
+  của Samsung (vd app "ACB ONE": "a", "ac", "acb", "one") → VP xoá chữ ngay, không ra kết quả, không lưu lịch sử tìm kiếm.
+  Quy tắc: 1 chữ = đầu tên app; từ 2 chữ = đầu bất kỳ từ nào trong tên; từ 3 chữ = nằm trong tên.
+
 ## 2.12
 - Giấu lối vào Kho riêng: bỏ "🔒 Kho riêng" khỏi nút đổi công cụ. Muốn vào: bấm 5 lần liền vào chữ "VP · bản …"
   ở góc trên bên trái → hiện ô nhập mã → gõ 89 → OK (sau đó vẫn cần vân tay / mã PIN). Gõ sai thì ô tự đóng, không báo gì.

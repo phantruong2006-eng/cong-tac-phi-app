@@ -23,7 +23,7 @@
 - Manifest được vá khi build bằng native/patch_manifest.py (queries, 2 activity, service); res: native/vp_lock_service.xml, native/vp_lock_strings.xml.
 - Không đọc được app nào đã bị Samsung giấu → anh tự bấm "Đã giấu xong" (lưu localStorage vp_kho_hidden).
 - Từ 2.12: Kho riêng không có trong menu; lối vào ẩn = bấm 5 lần vào tiêu đề "VP · bản …" → gõ 89 (www/vp-secret.js).
-- Chưa làm Lớp 2 (chặn từ khoá ô tìm kiếm Samsung) – để bản sau nếu anh cần.
+- Từ 2.13 có Lớp 2: VpLockService nghe typeViewTextChanged trong launcher/galaxyfinder, khớp tên app trong kho (bỏ dấu) thì ACTION_SET_TEXT "". Bật/tắt: prefs searchBlock.
 
 ## Kỹ thuật (để làm tiếp)
 - Code: GitHub **phantruong2006-eng/cong-tac-phi-app** (đang Public – nên chuyển Private).
